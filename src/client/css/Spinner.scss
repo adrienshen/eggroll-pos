@@ -1,0 +1,35 @@
+
+$color:      #dddddd;
+$size:       40px;
+$speed:      0.75s;
+$thickness:  8px;
+
+@keyframes rotate-forever {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.Spinner {
+  animation-duration: $speed;
+  animation-iteration-count: infinite;
+  animation-name: rotate-forever;
+  animation-timing-function: linear;
+  width: $size;
+  height: $size;
+  border: $thickness solid $color;
+  border-right-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.SpinnerPage {
+  display: flex;
+  justify-content: center;
+  padding: 60px;
+  min-height: 100vh;
+}
