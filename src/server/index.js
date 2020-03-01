@@ -27,6 +27,28 @@ app.use('/dist', express.static(path.join(__dirname, '../../dist')));
 app.use('/api/users', usersRouter);
 app.use('/api/contact', leadsRouter);
 
+/* entrypoint for messenger webhook */
+app.post('/webhook', (req, res) => {
+  let body = req.body;
+
+  if (body.object === 'page') {
+    
+    // iterates over each entry
+    body.entry.forEach(entry => {
+      
+      let webhook_event = entry.messaging[0];
+      console.log(webhook_event);
+
+    });
+
+    res.status(200).send('EVENT_RECEIVED');
+  } else {
+
+    res.sendStatus(404);
+
+  }
+});
+
 /* This should come after all other routes */
 app.use('/*', ReactRouter);
 
