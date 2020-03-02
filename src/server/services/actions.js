@@ -9,6 +9,8 @@ async function createNewOrder({psid, merchantId}) {
   let customer = await Customers.getWithPSID(psid);
   console.log('customer >> ', customer);
 
+  // @todo: check if merchant exists in database and can accept orders
+
   if (!customer || !customer.id) {
     console.log(`Creating new customer with psid ${psid}`);
     const customerId = await Customers.create({
