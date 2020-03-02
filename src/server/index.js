@@ -84,6 +84,12 @@ app.get('/d', async (req, res) => {
   res.send(`Order created with ID: ${orderId}`);
 });
 
+app.get('/o', async (req, res) => {
+  const params = {merchantId: 1};
+  const orders = await Actions.getMerchantOrders(params);
+  res.send(orders);
+});
+
 // curl -H "Content-Type: application/json" -X POST "localhost:3000/webhook" -d '{"object": "page", "entry": [{"messaging": [{"message": "TEST_MESSAGE"}]}]}'
 
 

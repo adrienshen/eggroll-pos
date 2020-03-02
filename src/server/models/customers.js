@@ -21,6 +21,11 @@ class Customers {
       .where('psid', psid)
       .first();
   }
+
+  static async orders() {
+    // @todo: implement get customer's orders
+    
+  }
 }
 
 module.exports = Customers;

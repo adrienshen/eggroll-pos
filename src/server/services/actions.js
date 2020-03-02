@@ -10,6 +10,7 @@ async function createNewOrder({psid, merchantId}) {
   console.log('customer >> ', customer);
 
   // @todo: check if merchant exists in database and can accept orders
+  const m = await Merchants.get(merchantId);
 
   if (!customer || !customer.id) {
     console.log(`Creating new customer with psid ${psid}`);
@@ -27,12 +28,29 @@ async function createNewOrder({psid, merchantId}) {
   return orderId;
 }
 
-async function getNearbyShops({params}) {
+async function getNearbyShops(params) {
   // @todo: given location data, get nearby shops for Customer
   return [];
+}
+
+async function getMerchantOrders({merchantId}) {
+  await Merchants.customers(merchantId);
+  return await Merchants.orders(merchantId);
+}
+
+async updateOrderPickupTime(params) {
+  // @todo: update order pickup time
+}
+
+async addOrderLineItem(params) {
+  // @todo: adds order line items
+
 }
 
 module.exports = {
   createNewOrder,
   getNearbyShops,
+  getMerchantOrders,
+  updateOrderPickupTime,
+  addOrderLineItem,
 };
