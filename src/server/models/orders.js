@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const db = require('./_db');
 
-const Orders = () => db('orders');
+const Table = () => db('orders');
 
 class Order {
   constructor(post) { this.post = post }
@@ -13,7 +13,7 @@ class Order {
 
   static async create({merchantId, customerId}) {
     // Customer: creates new order
-    const res = Orders.insert({
+    const res = Table.insert({
       merchant_id: merchantId,
       customer_id: customerId,
     }).returning('id');
@@ -23,7 +23,7 @@ class Order {
 
   static async update(id, params) {
     // @todo: Customer/Merchant: updates Order given payload
-    const res = Orders
+    const res = Table
       .update({...params})
       .where('id', id);
   }

@@ -1,12 +1,13 @@
 const _ = require('lodash');
 
-const Order = require('../models/orders');
+const Orders = require('../models/orders');
+const Customers = require('../models/customers');
+const Merchants = require('../models/merchants');
 
-async function createNewOrder(params) {
-  // create new order
-  const merchantId = 1;
-  const customerId = 2;
-  await Order.create({merchantId, customerId});
+async function createNewOrder({psid, merchantId}) {
+  // Creates new order
+  const c = await Customers.get(psid);
+  await Orders.create({merchantId, c.id});
 }
 
 async function getNearbyShops({params}) {

@@ -11,6 +11,8 @@ const ReactRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const leadsRouter = require('./routes/leads');
 
+const Actions = require('./services/actions');
+
 const app = express();
 
 // view engine setup
@@ -39,6 +41,12 @@ app.post('/webhook', (req, res) => {
       // handles events
       let webhook_event = entry.messaging[0];
       console.log(webhook_event);
+
+      // Create new order >>
+      Actions.createNewOrder({
+        psid: 95,
+        merchantId: 1,
+      });
 
     });
 
