@@ -6,8 +6,9 @@ const Merchants = require('../models/merchants');
 
 async function createNewOrder({psid, merchantId}) {
   // Creates new order
-  const c = await Customers.get(psid);
-  await Orders.create({merchantId, c.id});
+  const customer = await Customers.get(psid);
+  await Orders.create({merchantId, customerId: customer.id});
+
 }
 
 async function getNearbyShops({params}) {
