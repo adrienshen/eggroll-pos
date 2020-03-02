@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const db = require('./_db');
+const db = require('./db');
 
 const Table = () => db('orders');
 
@@ -12,18 +12,20 @@ class Order {
   }
 
   static async create({merchantId, customerId}) {
+    console.log('customerID >> ', customerId);
     // Customer: creates new order
-    const res = Table.insert({
+    const res = await Table().insert({
       merchant_id: merchantId,
       customer_id: customerId,
+      status: 'started',
     }).returning('id');
-
-    console.log('Order.create res >> ', res);
+    // console.log('Order.create res >> ', res);
+    return res[0];
   }
 
   static async update(id, params) {
     // @todo: Customer/Merchant: updates Order given payload
-    const res = Table
+    const res = Table()
       .update({...params})
       .where('id', id);
   }

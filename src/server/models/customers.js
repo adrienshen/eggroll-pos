@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const db = require('./_db');
+const db = require('./db');
 
 const Table = () => db('customers');
 
@@ -7,15 +7,19 @@ class Customers {
   constructor(customer) { this.customer = customer }
 
   static async create({psid, name}) {
-    Table
+    const res = await Table()
       .insert({
         psid,
         name,
-      })
+      }).returning('id');
+    return res[0];
   }
 
-  static async get({psid}) {
-    return Table.where({psid});
+  static async getWithPSID(psid) {
+    return await Table()
+      .select()
+      .where('psid', psid)
+      .first();
   }
 }
 

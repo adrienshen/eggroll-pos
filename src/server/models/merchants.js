@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const db = require('./_db');
+const db = require('./db');
 
 const Table = () => db('merchants');
 

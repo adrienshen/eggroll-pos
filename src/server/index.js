@@ -60,12 +60,12 @@ app.post('/webhook', (req, res) => {
 
 /* Adds support for GET requests to our webhook */
 app.get('/webhook', (req, res) => {
-  let = VERIFY_TOKEN = 'HACKATOKEN';
+  const VERIFY_TOKEN = 'HACKATOKEN';
 
   // parse query params
-  let mode = req.query['hub.mode'];
-  let token = req.query['hub.verify_token'];
-  let challenge = req.query['hub.challenge'];
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
 
   if (mode && token) {
     if (mode === 'subscribe' && token === VERIFY_TOKEN) {
@@ -76,6 +76,12 @@ app.get('/webhook', (req, res) => {
       res.sendStatus(403);
     }
   }
+});
+
+app.get('/d', async (req, res) => {
+  const {psid, merchantId} = req.query;
+  const orderId = await Actions.createNewOrder({psid, merchantId});
+  res.send(`Order created with ID: ${orderId}`);
 });
 
 // curl -H "Content-Type: application/json" -X POST "localhost:3000/webhook" -d '{"object": "page", "entry": [{"messaging": [{"message": "TEST_MESSAGE"}]}]}'

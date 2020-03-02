@@ -6,9 +6,23 @@ const Merchants = require('../models/merchants');
 
 async function createNewOrder({psid, merchantId}) {
   // Creates new order
-  const customer = await Customers.get(psid);
-  await Orders.create({merchantId, customerId: customer.id});
+  let customer = await Customers.getWithPSID(psid);
+  console.log('customer >> ', customer);
 
+  if (!customer || !customer.id) {
+    console.log(`Creating new customer with psid ${psid}`);
+    const customerId = await Customers.create({
+      psid,
+      // @todo: get name from profile
+      name: `New Customer: ${psid}`,
+    });
+    const orderId = await Orders.create({merchantId, customerId});
+    return orderId;
+  }
+
+  // console.log('customer{}', customer);
+  const orderId = await Orders.create({merchantId, customerId: customer.id});
+  return orderId;
 }
 
 async function getNearbyShops({params}) {
