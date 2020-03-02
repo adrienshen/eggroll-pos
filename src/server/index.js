@@ -36,6 +36,7 @@ app.post('/webhook', (req, res) => {
     // iterates over each entry
     body.entry.forEach(entry => {
       
+      // handles events
       let webhook_event = entry.messaging[0];
       console.log(webhook_event);
 
