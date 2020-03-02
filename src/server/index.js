@@ -49,6 +49,29 @@ app.post('/webhook', (req, res) => {
   }
 });
 
+/* Adds support for GET requests to our webhook */
+app.get('/webhook', (req, res) => {
+  let = VERIFY_TOKEN = 'HACKATOKEN';
+
+  // parse query params
+  let mode = req.query['hub.mode'];
+  let token = req.query['hub.verify_token'];
+  let challenge = req.query['hub.challenge'];
+
+  if (mode && token) {
+    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+      console.log('WEBHOOK_VERIFIED');
+      res.status(200).send(challenge);
+    } else {
+      // Responds with '403 Forbidden if verify tokens do not match'
+      res.sendStatus(403);
+    }
+  }
+});
+
+// curl -H "Content-Type: application/json" -X POST "localhost:3000/webhook" -d '{"object": "page", "entry": [{"messaging": [{"message": "TEST_MESSAGE"}]}]}'
+
+
 /* This should come after all other routes */
 app.use('/*', ReactRouter);
 
