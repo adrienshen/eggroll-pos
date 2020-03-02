@@ -25,9 +25,12 @@ class Order {
 
   static async update(id, params) {
     // @todo: Customer/Merchant: updates Order given payload
-    const res = Table()
+    const res = await Table()
       .update({...params})
-      .where('id', id);
+      .where('id', id)
+      .returning('id');
+    // console.log('update res: ', res);
+    return res[0];
   }
 
 }

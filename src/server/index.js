@@ -80,14 +80,14 @@ app.get('/webhook', (req, res) => {
 
 app.get('/d', async (req, res) => {
   const {psid, merchantId} = req.query;
-  const orderId = await Actions.createNewOrder({psid, merchantId});
+  const orderId = await Actions.initiatOrderProcess({psid, merchantId});
   res.send(`Order created with ID: ${orderId}`);
 });
 
 app.get('/o', async (req, res) => {
-  const params = {merchantId: 1};
-  const orders = await Actions.getMerchantOrders(params);
-  res.send(orders);
+  const params = {psid: '1005', orderId: 24, time: 30};
+  const orders = await Actions.updateOrderPickupTime(params);
+  res.json({orderUpdated: orders});
 });
 
 // curl -H "Content-Type: application/json" -X POST "localhost:3000/webhook" -d '{"object": "page", "entry": [{"messaging": [{"message": "TEST_MESSAGE"}]}]}'
