@@ -32,7 +32,14 @@ class Order {
     // console.log('update res: ', res);
     return res[0];
   }
-
+  
+  static async getWithID(id) {
+    return await Table()
+      .select()
+      .where('id', id)
+      .first();
+  }
+  
 }
 
 module.exports = Order;
