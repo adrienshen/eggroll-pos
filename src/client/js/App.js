@@ -25,7 +25,7 @@ function App() {
       <Switch>
         <Route path="/" exact component={HomeLanding} />
         <Route path="/about" exact component={Pages.AboutPage} />
-        <Route path="/receipts" exact component={Pages.Receipts} />
+        <Route path="/receipts/:id" exact component={Pages.Receipts} />
 
         {/* Merchant dashboard entry point */}
         <Route path="/merchant" exact component={Pages.MerchantRoutes} />
