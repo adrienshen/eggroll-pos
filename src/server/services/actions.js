@@ -101,7 +101,7 @@ async function createReceipt({orderId, paymentMethod}) {
   // Checks if the order exist
   const order = await Orders.getWithID(orderId);
   if (!order || !order.id) {
-    throw Error(`No order with ${orderId} found`);
+    throw Error(`No order with order id #${orderId} found`);
   }
   
   const params = {
@@ -116,11 +116,20 @@ async function createReceipt({orderId, paymentMethod}) {
   
 }
 
+async function getReceipt({receiptId}) {
+  const receipt =  await Receipts.getWithId(receiptId);
+  if (!receipt || !receipt.id) {
+    throw Error(`No receipt with receipt id #${receiptId} found`);
+  }
+  return receipt;
+}
+
 module.exports = {
   initiatOrderProcess,
   getNearbyShops,
   getMerchantOrders,
   updateOrderPickupTime,
+  getReceipt,
   // addOrderLineItem,
   // sendCustomerTextMessageFromMerchant,
 };
