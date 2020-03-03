@@ -3,7 +3,7 @@ const db = require('./db');
 
 const Table = () => db('receipts');
 
-class Receipt {
+class Receipts {
     constructor(receipt) { this.receipt = receipt }
     
     static async create({orderId, paymentMethod, params}) {
@@ -33,3 +33,5 @@ class Receipt {
   }
   
 }
+
+module.exports = Receipts;
