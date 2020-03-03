@@ -18,6 +18,13 @@ class Receipt {
     return res[0];
   }
   
+  static async getWithId(id){
+      return await Table()
+        .select()
+        .where('id',id)
+        .first();
+  }
+  
   static async getWithOrderId(orderId) {
     return await Table()
       .select()
