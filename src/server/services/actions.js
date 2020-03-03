@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const request = require("request");
 
 const Orders = require('../models/orders');
 const Customers = require('../models/customers');
@@ -36,9 +37,36 @@ async function initiatOrderProcess({psid, merchantId}) {
   return orderId;
 }
 
-async function getNearbyShops(params) {
-  // @todo: given location data, get nearby shops for Customer
-  return [];
+async function getNearbyShops(lat, lon) {
+  try {
+    const resp = await requestNearbyShops(lat, lon);
+    // @todo: filter shops that are only in our database
+    return resp.nearby_restaurants;
+  } catch (err) {
+    console.log("requestNearbyShops failed:", err);
+  }
+}
+
+function requestNearbyShops(lat, lon) {
+  return new Promise(function (resolve, reject) {
+    request({
+      headers: {
+        'user-key': '118f64801e68a449194b12893964eba7'
+      },
+      uri: `https://developers.zomato.com/api/v2.1/geocode`,
+      qs: {
+        lat: lat,
+        lon: lon,
+      },
+      method: "GET"
+    }, function (error, res, body) {
+      if (!error && res.statusCode == 200) {
+        resolve(JSON.parse(body));
+      } else {
+        reject(error);
+      }
+    });
+  });
 }
 
 async function getMerchantOrders({merchantId}) {
