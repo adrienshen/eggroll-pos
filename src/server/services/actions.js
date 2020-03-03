@@ -3,6 +3,7 @@ const _ = require('lodash');
 const Orders = require('../models/orders');
 const Customers = require('../models/customers');
 const Merchants = require('../models/merchants');
+const Receipts = require('../models/receipts');
 
 async function startOrderingChat(params) {
   // @todo: implement start chat flow
@@ -94,6 +95,25 @@ async function sendCustomerDirectMessageFromMerchant(params) {
  */
 async function sendMerchantDirectMessageFromCustomer(params) {
   console.log('@todo');
+}
+
+async function createReceipt({orderId, paymentMethod}) {
+  // Checks if the order exist
+  const order = await Orders.getWithID(orderId);
+  if (!order || !order.id) {
+    throw Error(`No order with ${orderId} found`);
+  }
+  
+  const params = {
+    subtotalCents : 123, // Where should the cost be generated?
+    taxCents : 123,
+    totalCents : 123
+  }
+  
+  // Creates new receipt
+  const receiptId = await Orders.create({orderId, paymentMethod, params});
+  return receiptId;
+  
 }
 
 module.exports = {
