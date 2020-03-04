@@ -93,8 +93,9 @@ app.get('/o', async (req, res) => {
 app.get('/r/:receiptId', async (req, res) => {
   const receiptId = req.params.receiptId;
   const receipts = await Actions.getReceipt({receiptId});
-  console.log(receipts)
-  res.json({receipt: receipts});
+  const orderId = receipts.order_id;
+  const lineItems = await Actions.getLineItems({orderId});
+  res.json({receipt: receipts, lineItems: lineItems});
 });
 
 // curl -H "Content-Type: application/json" -X POST "localhost:3000/webhook" -d '{"object": "page", "entry": [{"messaging": [{"message": "TEST_MESSAGE"}]}]}'
