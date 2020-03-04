@@ -124,12 +124,17 @@ async function getReceipt({receiptId}) {
   return receipt;
 }
 
+async function getLineItems({orderId}) {
+  const lineItems = await Orders.lineItems(orderId);
+  return lineItems
+}
 module.exports = {
   initiatOrderProcess,
   getNearbyShops,
   getMerchantOrders,
   updateOrderPickupTime,
   getReceipt,
+  getLineItems,
   // addOrderLineItem,
   // sendCustomerTextMessageFromMerchant,
 };
