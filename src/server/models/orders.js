@@ -40,6 +40,13 @@ class Order {
       .first();
   }
   
+  static async lineItems(id){
+    return await Table()
+      .select('menu_items.*')
+      .join('line_items', {'orders.id': 'line_items.order_id'})
+      .join('menu_items', {'line_items.menu_item_id': 'menu_items.id'})
+      .where('orders.id', id);
+  }
 }
 
 module.exports = Order;
