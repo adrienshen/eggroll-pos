@@ -7,9 +7,26 @@ const Merchants = require('../models/merchants');
 const LineItems = require('../models/lineItems');
 const MenuItems = require('../models/menu_items');
 
-async function startOrderingChat(params) {
-  // @todo: implement start chat flow
+const GraphAPI = require('../services/graph-apis');
+const Dialog = require('../services/dialog');
 
+async function startOrderingChat({psid}) {
+  const profile = await GraphAPI.getUserProfile(psid);
+  let name = '';
+  if (profile && profile.first_name) {
+    name = `${profile.first_name} ${profile.last_name}`;
+  }
+
+  const customer = await Customers.getWithPSID(psid);
+  if (!customer || !customer.id) {
+    const customerId = await Customers.create({
+      psid,
+      name,
+    });
+    return Dialog.introduction(psid, customer);
+  }
+
+  Dialog.introduction(psid, customer);
 }
 
 async function initiatOrderProcess({psid, merchantId}) {
@@ -21,17 +38,6 @@ async function initiatOrderProcess({psid, merchantId}) {
   const m = await Merchants.get(merchantId);
   if (!m || m.id) {
     throw Error(`Merchant with id ${m.id} not founded!`);
-  }
-
-  if (!customer || !customer.id) {
-    console.log(`Creating new customer with psid ${psid}`);
-    const customerId = await Customers.create({
-      psid,
-      // @todo: get name from profile
-      name: `New Customer: ${psid}`,
-    });
-    const orderId = await Orders.create({merchantId, customerId});
-    return orderId;
   }
 
   // console.log('customer{}', customer);
@@ -173,6 +179,7 @@ async function sendMerchantDirectMessageFromCustomer(params) {
 }
 
 module.exports = {
+  startOrderingChat,
   initiatOrderProcess,
   getNearbyShops,
   getMerchantOrders,

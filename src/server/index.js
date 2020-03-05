@@ -80,6 +80,12 @@ app.get('/webhook', (req, res) => {
 
 // @note: test routes, will be deleted once integrated with chatbot
 
+app.get('/c', async (req, res) => {
+  const params = {psid: '1005'};
+  const results = await Actions.startOrderingChat(params);
+  res.send(`Creating customer or returning existing customer`);
+});
+
 app.get('/d', async (req, res) => {
   const {psid, merchantId} = req.query;
   const orderId = await Actions.initiatOrderProcess({psid, merchantId});
