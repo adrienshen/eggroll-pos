@@ -47,6 +47,19 @@ class Order {
       .join('menu_items', {'line_items.menu_item_id': 'menu_items.id'})
       .where('orders.id', id);
   }
+  
+  static async orderCost({id,taxRate}){
+    const lineItems = await(this.lineItems(id));
+    const subtotalCents = lineItems.reduce((a,c) => a+ parseInt(c.price_cents), 0);
+    const taxCents = Math.ceil(subtotalCents * taxRate);
+    const totalCents = subtotalCents + taxCents;
+    const params = {
+      subtotalCents: subtotalCents,
+      taxCents: taxCents,
+      totalCents: totalCents
+    };
+    return params;
+  }
 }
 
 module.exports = Order;
