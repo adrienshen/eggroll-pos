@@ -4,6 +4,5 @@ exports.up = knex => knex.schema.table('merchants', (table) => {
 });
 
 exports.down = knex => knex.schema.table('merchants', (table) => {
-  table.dropColumn('postal_code');
-  table.dropColumn('address');
+  table.dropColumn('zomato_id');
 });
