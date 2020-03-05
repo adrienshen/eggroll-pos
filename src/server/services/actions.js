@@ -137,14 +137,15 @@ async function createReceipt({orderId, paymentMethod}) {
     throw Error(`No order with order id #${orderId} found`);
   }
   
-  const params = {
-    subtotalCents : 123, // Where should the cost be generated?
-    taxCents : 123,
-    totalCents : 123
-  }
+  const orderCostParams = {
+    id: orderId,
+    taxRate: 0.07
+  };
+  
+  const params = await Orders.orderCost(orderCostParams);
   
   // Creates new receipt
-  const receiptId = await Orders.create({orderId, paymentMethod, params});
+  const receiptId = await Receipts.create({orderId, paymentMethod, params});
   return receiptId;
   
 }
@@ -159,7 +160,7 @@ async function getReceipt({receiptId}) {
 
 async function getLineItems({orderId}) {
   const lineItems = await Orders.lineItems(orderId);
-  return lineItems
+  return lineItems;
 }
 module.exports = {
   initiatOrderProcess,
@@ -169,6 +170,7 @@ module.exports = {
   updateOrderPickupTime,
   getReceipt,
   getLineItems,
+  createReceipt
   // addOrderLineItem,
   // sendCustomerTextMessageFromMerchant,
 };
