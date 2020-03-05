@@ -4,6 +4,7 @@ const request = require("request");
 const Orders = require('../models/orders');
 const Customers = require('../models/customers');
 const Merchants = require('../models/merchants');
+const MenuItems = require('../models/menu_items');
 
 async function startOrderingChat(params) {
   // @todo: implement start chat flow
@@ -69,6 +70,10 @@ function requestNearbyShops(lat, lon) {
   });
 }
 
+async function getMerchantMenu(merchantId) {
+  return await MenuItems.getByMerchantId(merchantId);
+}
+
 async function getMerchantOrders({merchantId}) {
   await Merchants.customers(merchantId);
   return await Merchants.orders(merchantId);
@@ -128,6 +133,7 @@ module.exports = {
   initiatOrderProcess,
   getNearbyShops,
   getMerchantOrders,
+  getMerchantMenu,
   updateOrderPickupTime,
   // addOrderLineItem,
   // sendCustomerTextMessageFromMerchant,
