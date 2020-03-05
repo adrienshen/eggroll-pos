@@ -42,10 +42,21 @@ async function initiatOrderProcess({psid, merchantId}) {
 async function getNearbyShops(lat, lon) {
   try {
     const resp = await requestNearbyShops(lat, lon);
-    // @todo: filter shops that are only in our database
-    return resp.nearby_restaurants;
+
+    let shops = resp.nearby_restaurants.map(res => res.restaurant);
+    const zomatoIds = shops.map(shop => shop.id);
+    const validMerchants = await Merchants.getByZomatoIds(zomatoIds);
+
+    // mapping of zomatoIds to merchantId
+    const merchantIdMap = new Map(validMerchants.map(i => [i.zomato_id, i.id]));
+    // filter to display shops that are working with us
+    shops = shops.filter(shop => merchantIdMap.has(parseInt(shop.id)));
+    // append merchantId as part of result
+    shops.forEach(shop => shop.merchantId = merchantIdMap.get(parseInt(shop.id)));
+
+    return shops;
   } catch (err) {
-    console.log("requestNearbyShops failed:", err);
+    console.log("getNearbyShops failed:", err);
   }
 }
 
