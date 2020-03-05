@@ -4,6 +4,7 @@ const request = require("request");
 const Orders = require('../models/orders');
 const Customers = require('../models/customers');
 const Merchants = require('../models/merchants');
+const LineItems = require('../models/lineItems');
 
 async function startOrderingChat(params) {
   // @todo: implement start chat flow
@@ -79,7 +80,6 @@ async function getCustomersOrders({psid}) {
 }
 
 async function updateOrderPickupTime({psid, orderId, time}) {
-  // @todo: update order pickup time
   // time: Integer = 15, 30, 45, 60
 
   if (!psid || !orderId || !time) {
@@ -103,9 +103,41 @@ async function updateOrderPickupTime({psid, orderId, time}) {
   return order;
 }
 
-async function addOrderLineItem(params) {
+async function addOrderLineItem({orderId, menuItemId, comments, quantity}) {
   // @todo: adds order line items
+  if (!orderId || !menuItemId || !quantity) {
+    return null;
+  }
 
+  const results = await LineItems.create({
+    orderId,
+    menuItemId,
+    quantity,
+    comments: comments || '',
+  });
+
+  return results;
+}
+
+async function removeLineItem({lineItemId, orderId}) {
+  if (!orderId || !lineItemId) {
+    return null;
+  }
+
+  return await LineItems.remove({lineItemId, orderId});
+}
+
+async function updateLineItemQuantity({lineItemId, quantity}) {
+  if (!lineItemId || !quantity) {
+    return null;
+  }
+
+  const results = await LineItems.update(lineItemId, {
+    quantity,
+  });
+
+  console.log('results >> ', results);
+  return results;
 }
 
 /**
@@ -129,6 +161,9 @@ module.exports = {
   getNearbyShops,
   getMerchantOrders,
   updateOrderPickupTime,
-  // addOrderLineItem,
+  // Menu actions
+  addOrderLineItem,
+  updateLineItemQuantity,
+  removeLineItem,
   // sendCustomerTextMessageFromMerchant,
 };
