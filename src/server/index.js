@@ -78,6 +78,14 @@ app.get('/webhook', (req, res) => {
   }
 });
 
+app.get('/r/:receiptId', async (req, res) => {
+  const receiptId = req.params.receiptId;
+  const receipts = await Actions.getReceipt({receiptId});
+  const orderId = receipts.order_id;
+  const lineItems = await Actions.getLineItems({orderId});
+  res.json({receipt: receipts, lineItems: lineItems});
+});
+
 // @note: test routes, will be deleted once integrated with chatbot
 
 app.get('/c', async (req, res) => {
@@ -111,13 +119,6 @@ app.delete('/l', async (req, res) => {
 });
 
 // @end: test routes
-app.get('/r/:receiptId', async (req, res) => {
-  const receiptId = req.params.receiptId;
-  const receipts = await Actions.getReceipt({receiptId});
-  const orderId = receipts.order_id;
-  const lineItems = await Actions.getLineItems({orderId});
-  res.json({receipt: receipts, lineItems: lineItems});
-});
 
 // curl -H "Content-Type: application/json" -X POST "localhost:3000/webhook" -d '{"object": "page", "entry": [{"messaging": [{"message": "TEST_MESSAGE"}]}]}'
 
