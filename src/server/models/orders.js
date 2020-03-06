@@ -48,7 +48,7 @@ class Order {
       .where('orders.id', id);
   }
   
-  static async orderCost({id,taxRate}){
+  static async calculateSubtotal({id,taxRate}){
     const lineItems = await(this.lineItems(id));
     const subtotalCents = lineItems.reduce((a,c) => a+ parseInt(c.price_cents), 0);
     const taxCents = Math.ceil(subtotalCents * taxRate);
