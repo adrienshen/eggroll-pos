@@ -1,3 +1,4 @@
+require('dotenv').config();
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
@@ -14,6 +15,8 @@ const leadsRouter = require('./routes/leads');
 const Actions = require('./services/actions');
 
 const app = express();
+
+console.log('contents from dotenv file >> ', process.env);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -43,10 +46,10 @@ app.post('/webhook', (req, res) => {
       console.log(webhook_event);
 
       // Create new order >>
-      Actions.createNewOrder({
-        psid: 95,
-        merchantId: 1,
-      });
+      // Actions.createNewOrder({
+      //   psid: 95,
+      //   merchantId: 1,
+      // });
 
     });
 
@@ -60,7 +63,7 @@ app.post('/webhook', (req, res) => {
 
 /* Adds support for GET requests to our webhook */
 app.get('/webhook', (req, res) => {
-  const VERIFY_TOKEN = 'HACKATOKEN';
+  const VERIFY_TOKEN = 'HACKERTOKEN';
 
   // parse query params
   const mode = req.query['hub.mode'];
