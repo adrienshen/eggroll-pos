@@ -10,6 +10,7 @@ const logger = require('morgan');
 const ReactRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const leadsRouter = require('./routes/leads');
+const merchantsRouter = require('./routes/merchants');
 
 const Actions = require('./services/actions');
 
@@ -28,6 +29,7 @@ app.use('/dist', express.static(path.join(__dirname, '../../dist')));
 
 app.use('/api/users', usersRouter);
 app.use('/api/contact', leadsRouter);
+app.use('/api/merchants', merchantsRouter);
 
 /* entrypoint for messenger webhook */
 app.post('/webhook', (req, res) => {
