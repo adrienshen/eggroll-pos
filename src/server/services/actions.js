@@ -4,10 +4,29 @@ const request = require("request");
 const Orders = require('../models/orders');
 const Customers = require('../models/customers');
 const Merchants = require('../models/merchants');
+const LineItems = require('../models/lineItems');
+const MenuItems = require('../models/menu_items');
 
-async function startOrderingChat(params) {
-  // @todo: implement start chat flow
+const GraphAPI = require('../services/graph-apis');
+const Dialog = require('../services/dialog');
 
+async function startOrderingChat({psid}) {
+  const profile = await GraphAPI.getUserProfile(psid);
+  let name = '';
+  if (profile && profile.first_name) {
+    name = `${profile.first_name} ${profile.last_name}`;
+  }
+
+  const customer = await Customers.getWithPSID(psid);
+  if (!customer || !customer.id) {
+    const customerId = await Customers.create({
+      psid,
+      name,
+    });
+    return Dialog.introduction(psid, customer);
+  }
+
+  Dialog.introduction(psid, customer);
 }
 
 async function initiatOrderProcess({psid, merchantId}) {
@@ -21,17 +40,6 @@ async function initiatOrderProcess({psid, merchantId}) {
     throw Error(`Merchant with id ${m.id} not founded!`);
   }
 
-  if (!customer || !customer.id) {
-    console.log(`Creating new customer with psid ${psid}`);
-    const customerId = await Customers.create({
-      psid,
-      // @todo: get name from profile
-      name: `New Customer: ${psid}`,
-    });
-    const orderId = await Orders.create({merchantId, customerId});
-    return orderId;
-  }
-
   // console.log('customer{}', customer);
   const orderId = await Orders.create({merchantId, customerId: customer.id});
   return orderId;
@@ -40,10 +48,21 @@ async function initiatOrderProcess({psid, merchantId}) {
 async function getNearbyShops(lat, lon) {
   try {
     const resp = await requestNearbyShops(lat, lon);
-    // @todo: filter shops that are only in our database
-    return resp.nearby_restaurants;
+
+    let shops = resp.nearby_restaurants.map(res => res.restaurant);
+    const zomatoIds = shops.map(shop => shop.id);
+    const validMerchants = await Merchants.getByZomatoIds(zomatoIds);
+
+    // mapping of zomatoIds to merchantId
+    const merchantIdMap = new Map(validMerchants.map(i => [i.zomato_id, i.id]));
+    // filter to display shops that are working with us
+    shops = shops.filter(shop => merchantIdMap.has(parseInt(shop.id)));
+    // append merchantId as part of result
+    shops.forEach(shop => shop.merchantId = merchantIdMap.get(parseInt(shop.id)));
+
+    return shops;
   } catch (err) {
-    console.log("requestNearbyShops failed:", err);
+    console.log("getNearbyShops failed:", err);
   }
 }
 
@@ -69,6 +88,10 @@ function requestNearbyShops(lat, lon) {
   });
 }
 
+async function getMerchantMenu(merchantId) {
+  return await MenuItems.getByMerchantId(merchantId);
+}
+
 async function getMerchantOrders({merchantId}) {
   await Merchants.customers(merchantId);
   return await Merchants.orders(merchantId);
@@ -79,7 +102,6 @@ async function getCustomersOrders({psid}) {
 }
 
 async function updateOrderPickupTime({psid, orderId, time}) {
-  // @todo: update order pickup time
   // time: Integer = 15, 30, 45, 60
 
   if (!psid || !orderId || !time) {
@@ -103,9 +125,41 @@ async function updateOrderPickupTime({psid, orderId, time}) {
   return order;
 }
 
-async function addOrderLineItem(params) {
+async function addOrderLineItem({orderId, menuItemId, comments, quantity}) {
   // @todo: adds order line items
+  if (!orderId || !menuItemId || !quantity) {
+    return null;
+  }
 
+  const results = await LineItems.create({
+    orderId,
+    menuItemId,
+    quantity,
+    comments: comments || '',
+  });
+
+  return results;
+}
+
+async function removeLineItem({lineItemId, orderId}) {
+  if (!orderId || !lineItemId) {
+    return null;
+  }
+
+  return await LineItems.remove({lineItemId, orderId});
+}
+
+async function updateLineItemQuantity({lineItemId, quantity}) {
+  if (!lineItemId || !quantity) {
+    return null;
+  }
+
+  const results = await LineItems.update(lineItemId, {
+    quantity,
+  });
+
+  console.log('results >> ', results);
+  return results;
 }
 
 /**
@@ -125,10 +179,15 @@ async function sendMerchantDirectMessageFromCustomer(params) {
 }
 
 module.exports = {
+  startOrderingChat,
   initiatOrderProcess,
   getNearbyShops,
   getMerchantOrders,
+  getMerchantMenu,
   updateOrderPickupTime,
-  // addOrderLineItem,
+  // Menu actions
+  addOrderLineItem,
+  updateLineItemQuantity,
+  removeLineItem,
   // sendCustomerTextMessageFromMerchant,
 };

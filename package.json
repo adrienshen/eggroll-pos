@@ -33,6 +33,7 @@
     "cookie-parser": "~1.4.4",
     "css-loader": "^3.4.2",
     "debug": "~2.6.9",
+    "dotenv": "^8.2.0",
     "ejs": "^3.0.1",
     "eslint-config-react-app": "^5.2.0",
     "eslint-loader": "^3.0.3",

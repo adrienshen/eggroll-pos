@@ -78,6 +78,14 @@ app.get('/webhook', (req, res) => {
   }
 });
 
+// @note: test routes, will be deleted once integrated with chatbot
+
+app.get('/c', async (req, res) => {
+  const params = {psid: '1005'};
+  const results = await Actions.startOrderingChat(params);
+  res.send(`Creating customer or returning existing customer`);
+});
+
 app.get('/d', async (req, res) => {
   const {psid, merchantId} = req.query;
   const orderId = await Actions.initiatOrderProcess({psid, merchantId});
@@ -89,6 +97,20 @@ app.get('/o', async (req, res) => {
   const orders = await Actions.updateOrderPickupTime(params);
   res.json({orderUpdated: orders});
 });
+
+app.get('/l', async (req, res) => {
+  const params = {psid: '1005', orderId: 24, menuItemId: 2, quantity: 5, comments: ''};
+  const results = await Actions.addOrderLineItem(params);
+  res.json({updated: results});
+});
+
+app.delete('/l', async (req, res) => {
+  const params = {psid: '1005', orderId: 24, lineItemId: 3};
+  const results = await Actions.removeLineItem(params);
+  res.json({updated: results});
+});
+
+// @end: test routes
 
 // curl -H "Content-Type: application/json" -X POST "localhost:3000/webhook" -d '{"object": "page", "entry": [{"messaging": [{"message": "TEST_MESSAGE"}]}]}'
 
