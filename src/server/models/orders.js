@@ -6,12 +6,12 @@ const Table = () => db('orders');
 class Order {
   constructor(post) { this.post = post }
 
-  static async list() {
-    // @todo: Merchant: get list of order given some params
+  static async getOne(id) {
+    // @todo: Merchant: get given orderId
     
   }
 
-  static async get(merchantId, filter) {
+  static async list(merchantId, filter) {
     let query = Table()
     .select()
     .where('merchant_id', merchantId);

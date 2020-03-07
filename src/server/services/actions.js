@@ -11,6 +11,9 @@ const Receipts = require('../models/receipts');
 const GraphAPI = require('../services/graph-apis');
 const Dialog = require('../services/dialog');
 
+// Helpers
+const {getTimeUntilPickup} = require('../../shared/orders');
+
 async function startOrderingChat({psid}) {
   const profile = await GraphAPI.getUserProfile(psid);
   let name = '';
@@ -24,7 +27,7 @@ async function startOrderingChat({psid}) {
       psid,
       name,
     });
-    return Dialog.introduction(psid, customer);
+    return Dialog.introduction(psid, profile);
   }
 
   Dialog.introduction(psid, customer);
@@ -98,14 +101,29 @@ async function getMerchantOrders(merchantId, filter) {
   const pageLimit = filter.limit && filter.limit > 0 ? filter.limit : 20;
 
   try {
-    let orders = await Orders.get(merchantId, filter);
+    let orders = await Orders.list(merchantId, filter);
 
     // in memory pagination
     const startIndex = Math.min(pageOffset*pageLimit, orders.length)
     const endIndex = Math.min(startIndex+pageLimit, orders.length);
-    return orders.slice(startIndex, endIndex);
+    return orders
+      .map(o => {
+        return {
+          orderId: o.id,
+          merchantId: o.merchant_id,
+          customerId: o.customer_id,
+          status: o.status,
+          createdAt: o.created_at,
+          pickupTime: getTimeUntilPickup(o.confirmed_at, o.pickup_in),
+          pickup_in: o.pickup_in,
+          // "confirmed_at": "2020-03-07T20:37:23.758Z",
+          // "uuid": null,
+        }
+      })
+      .slice(startIndex, endIndex);
   } catch(err) {
     console.log("failed to get orders: ", err);
+    return null;
   }
 }
 
