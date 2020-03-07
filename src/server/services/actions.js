@@ -93,9 +93,20 @@ async function getMerchantMenu(merchantId) {
   return await MenuItems.getByMerchantId(merchantId);
 }
 
-async function getMerchantOrders({merchantId}) {
-  await Merchants.customers(merchantId);
-  return await Merchants.orders(merchantId);
+async function getMerchantOrders(merchantId, filter) {
+  const pageOffset = filter.offset && filter.offset >= 0 ? filter.offset : 0;
+  const pageLimit = filter.limit && filter.limit > 0 ? filter.limit : 20;
+
+  try {
+    let orders = await Orders.get(merchantId, filter);
+
+    // in memory pagination
+    const startIndex = Math.min(pageOffset*pageLimit, orders.length)
+    const endIndex = Math.min(startIndex+pageLimit, orders.length);
+    return orders.slice(startIndex, endIndex);
+  } catch(err) {
+    console.log("failed to get orders: ", err);
+  }
 }
 
 async function getCustomersOrders({psid}) {
