@@ -6,6 +6,7 @@ const Customers = require('../models/customers');
 const Merchants = require('../models/merchants');
 const LineItems = require('../models/lineItems');
 const MenuItems = require('../models/menu_items');
+const Receipts = require('../models/receipts');
 
 const GraphAPI = require('../services/graph-apis');
 const Dialog = require('../services/dialog');
@@ -178,6 +179,38 @@ async function sendMerchantDirectMessageFromCustomer(params) {
   console.log('@todo');
 }
 
+async function createReceipt({orderId, paymentMethod}) {
+  // Checks if the order exist
+  const order = await Orders.getWithID(orderId);
+  if (!order || !order.id) {
+    throw Error(`No order with order id #${orderId} found`);
+  }
+  
+  const orderCostParams = {
+    id: orderId,
+    taxRate: 0.07
+  };
+  
+  const params = await Orders.orderCost(orderCostParams);
+  
+  // Creates new receipt
+  const receiptId = await Receipts.create({orderId, paymentMethod, params});
+  return receiptId;
+  
+}
+
+async function getReceipt({receiptId}) {
+  const receipt =  await Receipts.getWithId(receiptId);
+  if (!receipt || !receipt.id) {
+    throw Error(`No receipt with receipt id #${receiptId} found`);
+  }
+  return receipt;
+}
+
+async function getLineItems({orderId}) {
+  const lineItems = await Orders.lineItems(orderId);
+  return lineItems;
+}
 module.exports = {
   startOrderingChat,
   initiatOrderProcess,
@@ -190,4 +223,7 @@ module.exports = {
   updateLineItemQuantity,
   removeLineItem,
   // sendCustomerTextMessageFromMerchant,
+  getReceipt,
+  getLineItems,
+  createReceipt
 };
