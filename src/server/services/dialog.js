@@ -1,4 +1,4 @@
-const M = require('messenger-node');
+const Messenger = require('messenger-node');
 
 const CONFIG = {
   // @todo: Get this from environment
