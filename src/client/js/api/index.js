@@ -64,3 +64,13 @@ export const getOrders = async (merchantId, params) => {
   const response = await fetchResource(ORDERS_URL.replace('$id', merchantId));
   return response;
 }
+
+export const updateOrderStatus = (merchantId = 3, statusToUpdate) => {
+  const response = await fetchResource(ORDERS_URL.replace('$id', merchantId), defaultPostOptions);
+  console.log('POST update order status ', response);
+  return response;
+}
+
+export const acceptOrder = async (merchantId) => {
+
+}

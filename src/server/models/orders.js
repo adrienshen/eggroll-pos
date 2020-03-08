@@ -32,21 +32,27 @@ class Order {
           , menu_items.name as menu_item_name
           , menu_items.description as menu_item_description
           , menu_items.price_cents
+          , customers.name as customer_name
+          , customers.mobile_phone
         from orders
         INNER JOIN line_items ON orders.id = line_items.order_id
         LEFT JOIN menu_items on line_items.menu_item_id = menu_items.id
+        LEFT JOIN customers on orders.customer_id = customers.id
       `))
       .select()
       .from('t1')
       .where('merchant_id', merchantId);
 
-    if(filter.startDate) {
+    if (filter.startDate) {
       query = query.andWhere('created_at', '>=', filter.startDate);
     }
-    if(filter.endDate) {
+    if (filter.endDate) {
       query = query.andWhere('created_at', '<=', filter.endDate);
     }
-    if(filter.status) {
+
+    // @todo: should never include the status=`started` orders
+    query = query.andWhereNot("status", 'started')
+    if (filter.status) {
       query = query.andWhere("status", filter.status);
     }
     const res = await query.orderBy('pickup_eta', 'customer_id');
