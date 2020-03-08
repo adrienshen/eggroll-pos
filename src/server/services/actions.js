@@ -135,7 +135,9 @@ async function updateOrderPickupTime({psid, orderId, time}) {
     throw Error(`No customer with ${psid} found`);
   }
 
-  const params = {pickup_in: time};
+  const params = {
+    pickup_in: time,
+  };
   const order = await Orders.update(orderId, params);
   console.log('updated order: ', order);
   return order;

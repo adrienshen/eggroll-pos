@@ -21,6 +21,8 @@ class Order {
           , orders.customer_id
           , orders.confirmed_at
           , orders.created_at
+          , orders.confirmed_at + (orders.pickup_in * interval '1 minute') as pickup_eta
+          , orders.pickup_in
           , orders.status
           , line_items.id as line_item_id
           , line_items.comments
