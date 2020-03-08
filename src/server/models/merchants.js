@@ -16,7 +16,7 @@ class Merchants {
       .select()
       .where('id', id)
       .first();
-    console.log('merchant res: ', res);
+    // console.log('merchant res: ', res);
     return res;
   }
 

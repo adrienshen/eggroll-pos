@@ -34,17 +34,17 @@ async function startOrderingChat({psid}) {
 }
 
 async function initiatOrderProcess({psid, merchantId}) {
+  if (!psid || !merchantId) return;
   // Creates new order
   let customer = await Customers.getWithPSID(psid);
   console.log('customer >> ', customer);
 
   // @todo: check if merchant exists in database and can accept orders
-  const m = await Merchants.get(merchantId);
-  if (!m || m.id) {
+  const merchant = await Merchants.get(merchantId);
+  if (!merchant || !merchant.id) {
     throw Error(`Merchant with id ${m.id} not founded!`);
   }
 
-  // console.log('customer{}', customer);
   const orderId = await Orders.create({merchantId, customerId: customer.id});
   return orderId;
 }
@@ -97,30 +97,16 @@ async function getMerchantMenu(merchantId) {
 }
 
 async function getMerchantOrders(merchantId, filter) {
-  const pageOffset = filter.offset && filter.offset >= 0 ? filter.offset : 0;
-  const pageLimit = filter.limit && filter.limit > 0 ? filter.limit : 20;
+  // Don't paginate for now since data is now indexed object, need to rethink how
+  // const pageOffset = filter.offset && filter.offset >= 0 ? filter.offset : 0;
+  // const pageLimit = filter.limit && filter.limit > 0 ? filter.limit : 20;
 
   try {
+    // const startIndex = Math.min(pageOffset * pageLimit, orders.length)
+    // const endIndex = Math.min(startIndex + pageLimit, orders.length);
     let orders = await Orders.list(merchantId, filter);
-
-    // in memory pagination
-    const startIndex = Math.min(pageOffset*pageLimit, orders.length)
-    const endIndex = Math.min(startIndex+pageLimit, orders.length);
-    return orders
-      .map(o => {
-        return {
-          orderId: o.id,
-          merchantId: o.merchant_id,
-          customerId: o.customer_id,
-          status: o.status,
-          createdAt: o.created_at,
-          pickupTime: getTimeUntilPickup(o.confirmed_at, o.pickup_in),
-          pickup_in: o.pickup_in,
-          // "confirmed_at": "2020-03-07T20:37:23.758Z",
-          // "uuid": null,
-        }
-      })
-      .slice(startIndex, endIndex);
+    // return orders.slice(startIndex, endIndex);
+    return orders;
   } catch(err) {
     console.log("failed to get orders: ", err);
     return null;
