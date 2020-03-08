@@ -7,16 +7,28 @@ const CONFIG = {
   api_version: 'v2.11',
 }
 
+const standardResponses = require('/response')
+
 const ResponseTemplates = {
   Introduction: name => `Hey there ${name}, let\'s get you started with ordering from our participating Merchants. Would you mind sharing your location so we can find nearby shops for you?`,
-
+  ViewReceipt: (name, receiptId) => standardResponses.genButtonTemplate(
+    `Hey there ${name}, here is your receipt!`,
+    {
+      type: 'web_url',
+      title: 'View Receipt',
+      url: `${SERVER_URL}/receipts/${receiptId}`,
+      webview_height_ratio: 'tall',
+      messenger_extensions: true,
+    }
+  ),
 }
+
 
 const Client = new Messenger.Client(CONFIG);
 
 /**
  * @arwa Let's put all the messenge sending logic to FB messenger here
- * 
+ *
  */
 
 function introduction(psid, customer) {
@@ -51,6 +63,8 @@ function askForOrderConfirmation(psid) {
 function respondWithReceipt(psid, receiptId) {
   // @todo Sends the receipt to customer, opened in a Webview
   // we already have the Receipt implmented in PR: https://github.com/adrienshen/facebook-bizchat-hackathon/pull/13/files
+  const recipient = {'id': psid};
+  Client.sendTemplate(recipient, ResponseTemplates.ViewReceipt(customer.name,receiptId))
 }
 
 function genericResponseText(psid, message) {
