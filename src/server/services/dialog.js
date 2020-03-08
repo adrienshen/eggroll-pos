@@ -16,6 +16,10 @@ const Client = new Messenger.Client(CONFIG);
 
 /**
  * @arwa Let's put all the messenge sending logic to FB messenger here
+ * 1. Chatbot initiates dialog. Offers options for user choice : 1. place order 2. check order
+ * 2. user adds 
+ * 
+ * 
  * 
  */
 
@@ -23,6 +27,20 @@ function introduction(psid, customer) {
   // @todo Sends the introduction message when Customers first initiate chat
   const recipient = {'id': psid};
   Client.sendText(recipient, ResponseTemplates.Introduction(customer.name));
+  
+  "payload": {
+    "template_type":"generic",
+    "greeting": [
+      {
+        "locale":"default",
+        "text":"Hello!" 
+      }, {
+        "locale":"en_US",
+        "text":"Timeless apparel for the masses."
+      }
+    ]
+  }
+
 }
 
 function responseWithNearbyLocations(psid, shops) {
