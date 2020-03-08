@@ -4,6 +4,7 @@ import { getTimeUntilPickup } from '../../../shared/orders';
 import {getOrders, updateOrderStatus} from '../api/index';
 
 import {Status} from '../../../shared/orders';
+import '../../css/pages/MerchantRoutes.scss'
 
 export default function MerchantRoutes(props) {
   return(
@@ -77,15 +78,17 @@ function OrderCard({
   }, [isSendingRequest]);
 
   console.log('orders >> ', order);
-  return <Card>
+  return <Card style={{marginBottom: '1rem'}}>
     <Card.Header>Pickup ETA (needs formating): {order.pickupEta}</Card.Header>
     <Card.Body>
         <div class="main-panel">
           <h4 id="order-id">ORDER #{order.orderId}</h4>
-          <span>Customer: {order.customerName}</span>
-          <span>Type: Pickup</span>
-          <span>Payment: Onsite</span>
-
+          <ul className="Order__meta-list">
+            <li>CUSTOMER: <span>{order.customerName}</span></li>
+            <li>MOBILE PHONE: <span>{order.mobilePhone || 'N/A'}</span></li>
+            <li>ORDER TYPE: <span>PICKUP</span></li>
+            <li>PAYMENT: <span>IN STORE</span></li>
+          </ul>
 
           <Table size="sm">
             <thead>
@@ -131,7 +134,7 @@ function OrderCard({
       </>}
       {(Status.ACCEPTED === order.status) &&
         <Button onClick={() => onUpdateStatus(Status.PREPARING)}
-        style={{marginRight: '.5rem'}} variant="outline-danger">Start Preparing</Button>
+        style={{marginRight: '.5rem'}} variant="success">Start Preparing</Button>
       }
       {Status.PREPARING === order.status &&
         <Button onClick={() => onUpdateStatus(Status.READY)}
