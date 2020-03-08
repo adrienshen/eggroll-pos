@@ -11,6 +11,22 @@ class Order {
     
   }
 
+  static async get(merchantId, filter) {
+    let query = Table()
+    .select()
+    .where('merchant_id', merchantId);
+    if(filter.startDate) {
+      query = query.andWhere('created_at', '>=', filter.startDate);
+    }
+    if(filter.endDate) {
+      query = query.andWhere('created_at', '<=', filter.endDate);
+    }
+    if(filter.status) {
+      query = query.andWhere("status", filter.status);
+    }
+    return await query.orderBy('status', 'created_at', 'customer_id');
+  }
+
   static async create({merchantId, customerId}) {
     console.log('customerID >> ', customerId);
     // Customer: creates new order

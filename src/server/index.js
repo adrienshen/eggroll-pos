@@ -1,3 +1,4 @@
+require('dotenv').config();
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
@@ -10,10 +11,13 @@ const logger = require('morgan');
 const ReactRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const leadsRouter = require('./routes/leads');
+const merchantsRouter = require('./routes/merchants');
 
 const Actions = require('./services/actions');
 
 const app = express();
+
+console.log('contents from dotenv file >> ', process.env);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -28,6 +32,7 @@ app.use('/dist', express.static(path.join(__dirname, '../../dist')));
 
 app.use('/api/users', usersRouter);
 app.use('/api/contact', leadsRouter);
+app.use('/api/merchants', merchantsRouter);
 
 /* entrypoint for messenger webhook */
 app.post('/webhook', (req, res) => {
@@ -43,10 +48,10 @@ app.post('/webhook', (req, res) => {
       console.log(webhook_event);
 
       // Create new order >>
-      Actions.createNewOrder({
-        psid: 95,
-        merchantId: 1,
-      });
+      // Actions.createNewOrder({
+      //   psid: 95,
+      //   merchantId: 1,
+      // });
 
     });
 
@@ -60,7 +65,7 @@ app.post('/webhook', (req, res) => {
 
 /* Adds support for GET requests to our webhook */
 app.get('/webhook', (req, res) => {
-  const VERIFY_TOKEN = 'HACKATOKEN';
+  const VERIFY_TOKEN = 'HACKERTOKEN';
 
   // parse query params
   const mode = req.query['hub.mode'];
