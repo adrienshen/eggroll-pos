@@ -1,12 +1,20 @@
 const { format, subDays, addMinutes, parseJSON, formatDistanceStrict, isFuture } = require('date-fns');
 
 const Status = {
-  STARTED: 'started', // chat started by Customer
-  CONFIRMED: 'confirmed', // confirmed by Customer
-  PREPARING: 'preparing', // after accept, preparing order
-  READY: 'ready', // ready for pickup
-  DELIVERING: 'on_delivery', // enroute for delivery
-  DECLINED: 'declined' // declined by Merchant
+  // chat started by Customer
+  STARTED: 'started',
+  // confirmed by Customer
+  CONFIRMED: 'confirmed',
+  // accepted by Merchant, before starting to prepare
+  ACCEPTED: 'accepted',
+  // declined by Merchant
+  DECLINED: 'declined',
+  // after accept, preparing order
+  PREPARING: 'preparing',
+  // ready for pickup
+  READY: 'ready',
+  // enroute for delivery; currently not implemented
+  DELIVERING: 'on_delivery',
 };
 
 function getTimeUntilPickup(confirmedAt, pickupIn) {

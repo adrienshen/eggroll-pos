@@ -3,6 +3,8 @@ const db = require('./db');
 const uuid = require('uuid');
 const camelcaseKeys = require('camelcase-keys');
 
+const {Status} = require('../../shared/orders');
+
 const Table = () => db('orders');
 
 class Order {
@@ -65,7 +67,7 @@ class Order {
     const res = await Table().insert({
       merchant_id: merchantId,
       customer_id: customerId,
-      status: 'started',
+      status: Status.STARTED,
       uuid: uuid.v4(),
     }).returning('id');
     // console.log('Order.create res >> ', res);
@@ -73,7 +75,13 @@ class Order {
   }
 
   static async update(id, params) {
-    // @todo: Customer/Merchant: updates Order given payload
+
+    // @todo: ideally should check that the status is `confirmed` first
+    // as it only makes sense to transition from `confirmed` -> `accepted`
+    if (params.status === Status.ACCEPTED) {
+      params.accepted_at = db.fn.now();
+    }
+
     const res = await Table()
       .update({...params})
       .where('id', id)

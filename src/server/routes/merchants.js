@@ -1,6 +1,9 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const _ = require('lodash');
 const Actions = require('../services/actions');
+
+const Orders = require('../models/orders');
 
 /* GET orders */
 router.get('/:merchantId/orders', async (req, res) => {
@@ -23,5 +26,34 @@ router.get('/:merchantId/orders', async (req, res) => {
         res.sendStatus(500);
     }
   });
+
+router.post('/:merchantId/orders', async (req, res) => {
+    if (!req.body.orderId) {
+        return res.json({error: 'no order id provided'});
+    }
+
+    /**
+     * - update status -> accepted
+     * - add accepted_at timestamp
+     * - return success or failure to update to Merchant UI
+     * - respond through FB Messenger the "Order has been accepted/declined/ready/delivering !"
+     */
+
+    const params = _.pick(req.body, ['status']);
+    if (['accepted', 'declined', 'preparing', 'ready'].indexOf(params.status) === -1) {
+        return res.json({error: 'invalid params'});
+    }
+
+    console.log('params >> ', params);
+
+    const results = await Orders.update(req.body.orderId, params);
+
+    // @todo: Send response to FB Messenger
+    res.json({
+        message: 'Updated',
+        rowsEffected: results,
+        orderId: req.body.orderId,
+    });
+});
 
 module.exports = router;
