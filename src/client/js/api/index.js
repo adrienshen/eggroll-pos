@@ -1,3 +1,7 @@
+import {Status} from '../../../shared/orders';
+
+const MERCHANT_ID = 3
+
 // Entrypoint for nodejs api
 
 const ORDERS_URL = '/api/merchants/$id/orders';
@@ -61,16 +65,15 @@ const fetchResource = async (url, options = defaultGetOptions) => {
 
 // @note: merchantId should probably some from session cookie or similar
 export const getOrders = async (merchantId, params) => {
-  const response = await fetchResource(ORDERS_URL.replace('$id', merchantId));
+  const response = await fetchResource(ORDERS_URL.replace('$id', MERCHANT_ID));
   return response;
 }
 
-export const updateOrderStatus = (merchantId = 3, statusToUpdate) => {
-  const response = await fetchResource(ORDERS_URL.replace('$id', merchantId), defaultPostOptions);
+export const updateOrderStatus = async (params, merchantId) => {
+  console.log('params >> ', params);
+  const response = await fetchResource(ORDERS_URL.replace('$id', MERCHANT_ID), createPostBodyRequest({
+    ...params,
+  }));
   console.log('POST update order status ', response);
   return response;
-}
-
-export const acceptOrder = async (merchantId) => {
-
 }

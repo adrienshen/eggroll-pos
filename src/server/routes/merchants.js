@@ -51,7 +51,6 @@ router.post('/:merchantId/orders', async (req, res) => {
     // @todo: Send response to FB Messenger
     res.json({
         message: 'Updated',
-        rowsEffected: results,
         orderId: req.body.orderId,
     });
 });

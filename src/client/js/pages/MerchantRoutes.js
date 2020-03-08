@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {Grid, Button, ButtonGroup, ButtonToolbar, Card, Table, Container} from 'react-bootstrap';
 import { getTimeUntilPickup } from '../../../shared/orders';
-import {getOrders, acceptOrder} from '../api/index';
+import {getOrders, updateOrderStatus} from '../api/index';
 
 import {Status} from '../../../shared/orders';
 
@@ -15,18 +15,6 @@ export default function MerchantRoutes(props) {
     </section>
   )
 }
-
-const orders = [
-  {
-    id: 1,
-    merchant_id: 3,
-    customer_id: 1,
-    pickup_time: '2020-03-08 04:02:23.758982+08', // Should be calculated in backend app from `pickup_in` and `confirmed_at`
-    status: 'confirmed',
-  }
-]
-
-console.log(getTimeUntilPickup('2020-03-08 07:00:23.758982+08', 15));
 
 function MerchantOrders() {
   const [orders, setOrders] = useState(null);
@@ -77,15 +65,16 @@ function OrderCard({
 
   const [isSendingRequest, setIsSendingRequest] = useState(false);
 
-  const accept = useCallback(async () => {
+  const onUpdateStatus = useCallback(async status => {
     if (isSendingRequest) return;
-
-    setIsSending(true);
-
-    await acceptOrder(order.orderId);
-
-    setIsSending(false);
-  }, [setIsSendingRequest]);
+    setIsSendingRequest(true);
+    await updateOrderStatus({
+      orderId: order.orderId,
+      status,
+    });
+    setIsSendingRequest(false);
+    location.reload();
+  }, [isSendingRequest]);
 
   console.log('orders >> ', order);
   return <Card>
@@ -112,9 +101,9 @@ function OrderCard({
                   <td>{line.quantity}</td>
                   <td>
                     <strong>{line.name}</strong><br/>
-                    <span style={{color: '#999', marginLeft:'.5rem'}}>{line.comments}</span>
+                    <span style={{color: '#999', marginLeft:'.5rem'}}>Comments: {line.comments}</span>
                   </td>
-                  <td>{line.priceCents}</td>
+              <td>{(line.priceCents/100).toFixed(2)} {`$`}</td>
                 </tr>
               })}
             </tbody>
@@ -122,16 +111,30 @@ function OrderCard({
         </div>
     </Card.Body>
     <Card.Footer>
+    {Status.DECLINED === order.status &&
+      <div style={{color: "darkred"}}>
+        <strong>ORDER HAS BEEN DECLINED</strong>
+      </div>
+    }
+    {Status.READY === order.status &&
+      <div style={{color: "darkgreen"}}>
+        <strong>ORDER READY FOR PICKUP / DELIVERY</strong>
+      </div>
+    }
     <ButtonToolbar style={{display: 'flex', justifyContent: 'flex-end'}}>
       {Status.CONFIRMED === order.status &&
       <>
-        <Button onClick={acceptOrder}
+        <Button onClick={() => onUpdateStatus(Status.ACCEPTED)}
           style={{marginRight: '.5rem'}} variant="primary">Accept Order</Button>
-        <Button onClick={declineOrder}
+        <Button onClick={() => onUpdateStatus(Status.DECLINED)}
           style={{marginRight: '.5rem'}} variant="outline-danger">Decline Order</Button>
       </>}
+      {(Status.ACCEPTED === order.status) &&
+        <Button onClick={() => onUpdateStatus(Status.PREPARING)}
+        style={{marginRight: '.5rem'}} variant="outline-danger">Start Preparing</Button>
+      }
       {Status.PREPARING === order.status &&
-        <Button onClick={finishOrdering}
+        <Button onClick={() => onUpdateStatus(Status.READY)}
           variant="success">Finished Preparing</Button>}
     </ButtonToolbar>
     </Card.Footer>
