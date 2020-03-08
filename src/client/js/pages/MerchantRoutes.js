@@ -9,9 +9,6 @@ import '../../css/pages/MerchantRoutes.scss'
 export default function MerchantRoutes(props) {
   return(
     <section>
-      Put your /merchant webview routes here
-      see: ReactRouter V4/5
-
       <MerchantOrders />
     </section>
   )
@@ -30,15 +27,11 @@ function MerchantOrders() {
     }
 
     fetchOrders();
-
-    // return () => {
-    //   effect
-    // };
-  }, [])
+  }, []);
 
   console.log('READY ORDERS >> ', orders);
   return <>
-        <div>
+        {/* <div>
             <div class='user-profile'>
               <a class="user-account">Merchant Dashboard</a>
             </div>
@@ -50,7 +43,7 @@ function MerchantOrders() {
                   <a class="nav-link" href="#">Settings</a>
               </li>
             </ul>
-        </div>
+        </div> */}
 
         <Container>
           {orders && Object.keys(orders).map(k => {
