@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const db = require('./db');
 const uuid = require('uuid');
+const camelcaseKeys = require('camelcase-keys');
 
 const Table = () => db('orders');
 
@@ -16,7 +17,7 @@ class Order {
     let query = db
       .with('t1', db.raw(`
           select orders.id as order_id
-          , orders.uuid as order_uuid
+          , orders.uuid as uuid
           , orders.merchant_id
           , orders.customer_id
           , orders.confirmed_at
@@ -48,9 +49,8 @@ class Order {
     if(filter.status) {
       query = query.andWhere("status", filter.status);
     }
-    const res = await query.orderBy('created_at', 'customer_id');
-    console.log('GOT HERE >> ', await query);
-    return this._groupMenuItemsByOrder(res);
+    const res = await query.orderBy('pickup_eta', 'customer_id');
+    return this._groupMenuItemsByOrder(camelcaseKeys(res));
   }
 
   static async create({merchantId, customerId}) {
@@ -112,26 +112,26 @@ class Order {
         id: ord.line_item_id,
         comments: ord.comments,
         quantity: ord.quantity,
-        menuItemId: ord.menu_item_id,
-        name: ord.menu_item_name,
-        description: ord.menu_item_description,
-        priceCents: parseInt(ord.price_cents),
+        menuItemId: ord.menuItemId,
+        name: ord.menuItemName,
+        description: ord.menuItemDescription,
+        priceCents: parseInt(ord.priceCents),
       };
-      if (grouped[ord.order_uuid]) {
-        grouped[ord.order_uuid].lineItems.push(lineItem);
+      if (grouped[ord.uuid]) {
+        grouped[ord.uuid].lineItems.push(lineItem);
       } else {
-        grouped[ord.order_uuid] = {
+        grouped[ord.uuid] = {
           ...ord,
           lineItems: [lineItem],
         };
         // @note: should refactor later when have time
-        delete grouped[ord.order_uuid].line_item_id;
-        delete grouped[ord.order_uuid].comments;
-        delete grouped[ord.order_uuid].quantity;
-        delete grouped[ord.order_uuid].menu_item_name;
-        delete grouped[ord.order_uuid].menu_item_description;
-        delete grouped[ord.order_uuid].price_cents;
-        delete grouped[ord.order_uuid].menu_item_id;
+        delete grouped[ord.uuid].lineItemId;
+        delete grouped[ord.uuid].comments;
+        delete grouped[ord.uuid].quantity;
+        delete grouped[ord.uuid].menuItemName;
+        delete grouped[ord.uuid].menuItemDescription;
+        delete grouped[ord.uuid].priceCents;
+        delete grouped[ord.uuid].menuItemId;
       }
     });
     return grouped;
