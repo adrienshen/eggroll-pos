@@ -17,8 +17,6 @@ const Actions = require('./services/actions');
 
 const app = express();
 
-console.log('contents from dotenv file >> ', process.env);
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -99,7 +97,7 @@ app.get('/c', async (req, res) => {
   res.send(`Creating customer or returning existing customer`);
 });
 
-app.get('/d', async (req, res) => {
+app.get('/oc', async (req, res) => {
   const {psid, merchantId} = req.query;
   const orderId = await Actions.initiatOrderProcess({psid, merchantId});
   res.send(`Order created with ID: ${orderId}`);
