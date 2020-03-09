@@ -10,7 +10,7 @@ class Order {
 
   static async getOne(id) {
     // @todo: Merchant: get given orderId
-    
+
   }
 
   static async list(merchantId, filter) {
@@ -75,22 +75,22 @@ class Order {
     // console.log('update res: ', res);
     return res[0];
   }
-  
+
   static async getWithID(id) {
     return await Table()
       .select()
       .where('id', id)
       .first();
   }
-  
+
   static async lineItems(id) {
     return await Table()
-      .select('menu_items.*')
+      .select()
       .join('line_items', {'orders.id': 'line_items.order_id'})
       .join('menu_items', {'line_items.menu_item_id': 'menu_items.id'})
       .where('orders.id', id);
   }
-  
+
   static async calculateSubtotal({id,taxRate}) {
     const lineItems = await(this.lineItems(id));
     const subtotalCents = lineItems.reduce((a,c) => a+ parseInt(c.price_cents), 0);
