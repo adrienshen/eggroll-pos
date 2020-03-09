@@ -8,7 +8,7 @@ module.exports = {
       host: '127.0.0.1',
       database: 'fb_bizchat_demo',
       user: 'postgres',
-      password: '',
+      password: 'somepassword',
     },
   },
   production: {
