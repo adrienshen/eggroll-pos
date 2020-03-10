@@ -11,6 +11,9 @@ const Receipts = require('../models/receipts');
 const GraphAPI = require('../services/graph-apis');
 const Dialog = require('../services/dialog');
 
+// Helpers
+const {getTimeUntilPickup} = require('../../shared/orders');
+
 async function startOrderingChat({psid}) {
   const profile = await GraphAPI.getUserProfile(psid);
   let name = '';
@@ -24,24 +27,24 @@ async function startOrderingChat({psid}) {
       psid,
       name,
     });
-    return Dialog.introduction(psid, customer);
+    return Dialog.introduction(psid, profile);
   }
 
   Dialog.introduction(psid, customer);
 }
 
 async function initiatOrderProcess({psid, merchantId}) {
+  if (!psid || !merchantId) return;
   // Creates new order
   let customer = await Customers.getWithPSID(psid);
   console.log('customer >> ', customer);
 
   // @todo: check if merchant exists in database and can accept orders
-  const m = await Merchants.get(merchantId);
-  if (!m || m.id) {
+  const merchant = await Merchants.get(merchantId);
+  if (!merchant || !merchant.id) {
     throw Error(`Merchant with id ${m.id} not founded!`);
   }
 
-  // console.log('customer{}', customer);
   const orderId = await Orders.create({merchantId, customerId: customer.id});
   return orderId;
 }
@@ -94,18 +97,19 @@ async function getMerchantMenu(merchantId) {
 }
 
 async function getMerchantOrders(merchantId, filter) {
-  const pageOffset = filter.offset && filter.offset >= 0 ? filter.offset : 0;
-  const pageLimit = filter.limit && filter.limit > 0 ? filter.limit : 20;
+  // Don't paginate for now since data is now indexed object, need to rethink how
+  // const pageOffset = filter.offset && filter.offset >= 0 ? filter.offset : 0;
+  // const pageLimit = filter.limit && filter.limit > 0 ? filter.limit : 20;
 
   try {
-    let orders = await Orders.get(merchantId, filter);
-
-    // in memory pagination
-    const startIndex = Math.min(pageOffset*pageLimit, orders.length)
-    const endIndex = Math.min(startIndex+pageLimit, orders.length);
-    return orders.slice(startIndex, endIndex);
+    // const startIndex = Math.min(pageOffset * pageLimit, orders.length)
+    // const endIndex = Math.min(startIndex + pageLimit, orders.length);
+    let orders = await Orders.list(merchantId, filter);
+    // return orders.slice(startIndex, endIndex);
+    return orders;
   } catch(err) {
     console.log("failed to get orders: ", err);
+    return null;
   }
 }
 
@@ -131,7 +135,9 @@ async function updateOrderPickupTime({psid, orderId, time}) {
     throw Error(`No customer with ${psid} found`);
   }
 
-  const params = {pickup_in: time};
+  const params = {
+    pickup_in: time,
+  };
   const order = await Orders.update(orderId, params);
   console.log('updated order: ', order);
   return order;
