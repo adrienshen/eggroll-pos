@@ -17,6 +17,14 @@ const Status = {
   DELIVERING: 'on_delivery',
 };
 
+// These order statuses should be fetched for the main view
+// Only show countdown timer on these when less than 10 minutes to ETA
+const ACTIVE_ORDER_STATUSES = [
+  Status.CONFIRMED,
+  Status.ACCEPTED,
+  Status.PREPARING,
+];
+
 function getTimeUntilPickup(confirmedAt, pickupIn) {
   if (!pickupIn || !confirmedAt) {
     return;
