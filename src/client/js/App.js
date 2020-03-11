@@ -12,6 +12,7 @@ const Pages = {
   Receipts: (props) => <Lazy {...props} module={import('./pages/Receipts')} />,
   MerchantRoutes: (props) => <Lazy {...props} module={import('./pages/MerchantRoutes')} />,
   CustomerRoutes: (props) => <Lazy {...props} module={import('./pages/CustomerRoutes')} />,
+  Menus: (props) => <Lazy {...props} module={import('./pages/Menus')} />,
 }
 
 const SERVER_DATA = window.__VARS__ ? window.__VARS__ : null;
@@ -29,8 +30,9 @@ function App() {
 
         {/* Merchant dashboard entry point */}
         <Route path="/merchant" exact component={Pages.MerchantRoutes} />
-        
+
         {/* Customer webview entry point: menus, receipts? */}
+        <Route path="/customer/:merchantId/menu" exact component={Pages.Menus} />
         <Route path="/customer" exact component={Pages.CustomerRoutes} />
       </Switch>
 
