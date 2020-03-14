@@ -8,20 +8,20 @@ class Receipt extends React.Component{
       receipt: null
     };
   }
-  
+
   componentDidMount () {
     const id = this.props.id;
     fetch(`/r/${id}`)
       .then(res => res.json())
       .then(receipt => this.setState(receipt));
   }
-  
+
   formatCentsToDollars(value) {
     value = (value + '').replace(/[^\d.-]/g, '');
     value = parseFloat(value);
     return value ? value / 100 : 0;
   }
-  
+
   render(){
       if(this.state.receipt === null || this.state.lineItems === null){
         return (
@@ -29,66 +29,75 @@ class Receipt extends React.Component{
           )
       } else {
         return (
-          <Card style={{width:'100%'}}>
-            <Card.Header><Card.Title className="my-2">Receipt #{this.state.receipt.id}</Card.Title></Card.Header>
-            <Card.Body>
-              <Row className="mb-3">
-                <Col>
-                  <Card.Text>
-                    <span className="font-weight-bolder">Order ID: </span>{this.state.receipt.order_id}
-                  </Card.Text>
+          <Container className="border rounded" style={{boxShadow: "1.5px 1.5px grey",backgroundColor:"white"}}>
+            <Row className="my-5">
+              <Col className="text-center">
+                <p className="mb-0">LOGO</p>
+              </Col>
+            </Row>
+            <Row className="mt-4 mb-2">
+              <Col xs={8}>
+                <h2>Receipt</h2>
+              </Col>
+              <Col xs={4} className="text-right">
+                <h3 className="mr-2 text-muted">#{this.state.receipt.id}</h3>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <p>{(new Date(this.state.receipt.created_at)).toLocaleString()}</p>
+              </Col>
+            </Row>
+            <hr/>
+            <Row>
+              <Col className="text-center my-3 font-italic">
+                {this.state.receipt.business_name}
+              </Col>
+            </Row>
+            <hr/>
+            <Row>
+              <Col xs={6}>
+                <h6 className="text-muted">Product</h6>
+              </Col>
+              <Col xs={3}>
+                <h6 className="text-muted text-center">Unit</h6>
+              </Col>
+              <Col xs={3}>
+                <h6 className="text-muted text-center">Price</h6>
+              </Col>
+            </Row>
+            {this.state.lineItems.map((item,i) =>
+              <Row key={i} className="my-4">
+                <Col xs={6}>
+                  <Row>
+                    <Col>
+                      <p><span className="font-weight-bold">{item.name}</span>{item.comments && ' (' + item.comments + ')'}</p>
+                    </Col>
+                  </Row>
+                </Col>
+                <Col xs={3} className="text-center">
+                  {item.quantity}
+                </Col>
+                <Col xs={3} className="text-right">
+                  <span className="mr-2">{this.formatCentsToDollars(item.price_cents)}</span>
                 </Col>
               </Row>
-              <Row className="mb-3">
-                <Col>
-                  <Card.Text>
-                    <span className="font-weight-bolder">Amount: </span>${this.formatCentsToDollars(this.state.receipt.total_cents)}
-                  </Card.Text>
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <h3>Products bought:</h3>
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <ListGroup variant="flush">
-                    {this.state.lineItems.map((item,i) => 
-                      <ListGroup.Item key={i}>
-                        <Col>
-                          <Row>
-                            <Col>
-                              Name:
-                            </Col>
-                            <Col>
-                              {item.name}
-                            </Col>
-                          </Row>
-                          <Row>
-                            <Col>
-                              Description:
-                            </Col>
-                            <Col>
-                              {item.description}
-                            </Col>
-                          </Row>
-                          <Row>
-                            <Col>
-                              Price:
-                            </Col>
-                            <Col>
-                              ${this.formatCentsToDollars(item.price_cents)}
-                            </Col>
-                          </Row>
-                        </Col>
-                      </ListGroup.Item>)}
-                  </ListGroup>
-                </Col>
-              </Row>
-            </Card.Body>
-            <Card.Footer>{this.state.receipt.created_at}</Card.Footer>
-          </Card>
+            )}
+            <Row className="my-3">
+              <Col xs={9}>
+                <h5 className="font-weight-bold">Total</h5>
+              </Col>
+              <Col xs={3} className="text-right">
+                {this.formatCentsToDollars(this.state.receipt.total_cents)}
+              </Col>
+            </Row>
+            <hr/>
+            <Row>
+              <Col className="text-center">
+                <p>Service by PLATFORM_NAME</p>
+              </Col>
+            </Row>
+          </Container>
         );
       }
   }
@@ -97,10 +106,9 @@ class Receipt extends React.Component{
 export default function MerchantRoutes(props) {
   return(
     <section>
-      Webview for generated receipts
-      <Container>
-        <Row>
-          <Col>
+      <Container fluid={true} style={{backgroundColor:'#FB8B8B'}}>
+        <Row className="py-5">
+          <Col md={{span:6,offset:3}}>
             <Receipt id={props.match.params.id} />
           </Col>
         </Row>
