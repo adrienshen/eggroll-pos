@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {Grid, Button, ButtonGroup, ButtonToolbar, Card, Table, Container} from 'react-bootstrap';
 import { getTimeUntilPickup } from '../../../shared/orders';
 import {getOrders, updateOrderStatus} from '../api/index';
+import {CountdownTimer} from '../components';
 
 import {Status} from '../../../shared/orders';
 import '../../css/pages/MerchantRoutes.scss'
@@ -72,7 +73,7 @@ function OrderCard({
 
   console.log('orders >> ', order);
   return <Card style={{marginBottom: '1rem'}}>
-    <Card.Header>Pickup ETA (needs formating): {order.pickupEta}</Card.Header>
+    <Card.Header><CountdownTimer text={order.pickupEta}></CountdownTimer></Card.Header>
     <Card.Body>
         <div class="main-panel">
           <h4 id="order-id">ORDER #{order.orderId}</h4>
