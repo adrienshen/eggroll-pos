@@ -2,3 +2,6 @@ dist/
 node_modules/
 secrets/
 examples/
+.env
+APPLICATION.md
+.vscode/settings.json

@@ -49,9 +49,16 @@ async function initiatOrderProcess({psid, merchantId}) {
   return orderId;
 }
 
-async function getNearbyShops(lat, lon) {
+async function getNearbyShops(psid, zipCode) {
+  // get merchants by zip for now
+  const merchants = await Merchants.getByZip(zipCode);
+  // console.log('merchants by zip >> ', merchants);
+  Dialog.responseWithNearbyLocations(psid, merchants);
+}
+
+async function getNearbyShopsFromZomato(lat, lon) {
   try {
-    const resp = await requestNearbyShops(lat, lon);
+    const resp = await requestNearbyZomato(lat, lon);
 
     let shops = resp.nearby_restaurants.map(res => res.restaurant);
     const zomatoIds = shops.map(shop => shop.id);
@@ -67,10 +74,11 @@ async function getNearbyShops(lat, lon) {
     return shops;
   } catch (err) {
     console.log("getNearbyShops failed:", err);
+    return null;
   }
 }
 
-function requestNearbyShops(lat, lon) {
+function requestNearbyZomato(lat, lon) {
   return new Promise(function (resolve, reject) {
     request({
       headers: {

@@ -15,6 +15,8 @@ const merchantsRouter = require('./routes/merchants');
 
 const Actions = require('./services/actions');
 
+const Dialog = require('./services/dialog');
+
 const app = express();
 
 // view engine setup
@@ -33,23 +35,32 @@ app.use('/api/contact', leadsRouter);
 app.use('/api/merchants', merchantsRouter);
 
 /* entrypoint for messenger webhook */
-app.post('/webhook', (req, res) => {
+app.post('/webhook', async (req, res) => {
   let body = req.body;
 
   if (body.object === 'page') {
     
     // iterates over each entry
-    body.entry.forEach(entry => {
+    body.entry.forEach(async entry => {
+
+      console.log('ENTRY >> ', entry);
       
       // handles events
       let webhook_event = entry.messaging[0];
       console.log(webhook_event);
 
-      // Create new order >>
-      // Actions.createNewOrder({
-      //   psid: 95,
-      //   merchantId: 1,
-      // });
+      // get the sender PSID
+      let sender_psid = webhook_event.sender.id;
+      console.log('Sender PSID: ' + sender_psid);
+
+      // NLP entities:
+      console.log('NLP entities >> ', webhook_event.message.nlp.entities);
+
+      if (webhook_event.message) {
+        await handleMessage(sender_psid, webhook_event.message);
+      } else if (webhook_event.postback) {
+        await handlePostback(sender_psid, webhook_event.postback);
+      }
 
     });
 
@@ -61,17 +72,31 @@ app.post('/webhook', (req, res) => {
   }
 });
 
+async function handleMessage(sender_psid, received_message) {
+  if (received_message.text) {
+    if (isZipCode(received_message.text)) {
+      return Actions.getNearbyShops(sender_psid, received_message.text);
+    }
+    console.log('Test the introduction...');
+    await Dialog.introduction(sender_psid, {name: 'Adrien Shen'});
+  }
+}
+
+function isZipCode(possibleZip) {
+  const min = 10000;
+  const max = 999999;
+  return Number(possibleZip) >= min && Number(possibleZip) <= max;
+}
+
 /* Adds support for GET requests to our webhook */
 app.get('/webhook', (req, res) => {
-  const VERIFY_TOKEN = 'HACKERTOKEN';
-
   // parse query params
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
   const challenge = req.query['hub.challenge'];
 
   if (mode && token) {
-    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+    if (mode === 'subscribe' && token === process.env.VERIFY_TOKEN) {
       console.log('WEBHOOK_VERIFIED');
       res.status(200).send(challenge);
     } else {

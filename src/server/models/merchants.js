@@ -43,6 +43,12 @@ class Merchants {
       .returning('id');
   }
 
+  static async getByZip(zipCode) {
+    return await T()
+      .select()
+      .where('postal_code', zipCode);
+  }
+
   static async  customers(id) {
     const res = await T()
       .select('customers.*')
