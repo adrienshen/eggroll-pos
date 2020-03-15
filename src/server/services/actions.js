@@ -101,7 +101,12 @@ function requestNearbyZomato(lat, lon) {
 }
 
 async function getMerchantMenu(merchantId) {
-  return await MenuItems.getByMerchantId(merchantId);
+  const menu = await MenuItems.getByMerchantId(merchantId);
+  if (!menu) {
+    throw Error(`No menu with this merchant id #${merchantId} found`);
+  }
+  console.log(menu)
+  return menu;
 }
 
 async function getMerchantOrders(merchantId, filter) {
@@ -190,7 +195,7 @@ async function updateLineItemQuantity({lineItemId, quantity}) {
 
 /**
  * Used to send direct messages from Merchant to Customer
- * @param {*} params 
+ * @param {*} params
  */
 async function sendCustomerDirectMessageFromMerchant(params) {
   console.into('@todo');
@@ -198,7 +203,7 @@ async function sendCustomerDirectMessageFromMerchant(params) {
 
 /**
  * Used to send direct messages from Customer to Merchant
- * @param {*} params 
+ * @param {*} params
  */
 async function sendMerchantDirectMessageFromCustomer(params) {
   console.log('@todo');
@@ -210,18 +215,18 @@ async function createReceipt({orderId, paymentMethod}) {
   if (!order || !order.id) {
     throw Error(`No order with order id #${orderId} found`);
   }
-  
+
   const orderCostParams = {
     id: orderId,
     taxRate: 0.07
   };
-  
+
   const params = await Orders.orderCost(orderCostParams);
-  
+
   // Creates new receipt
   const receiptId = await Receipts.create({orderId, paymentMethod, params});
   return receiptId;
-  
+
 }
 
 async function getReceipt({receiptId}) {

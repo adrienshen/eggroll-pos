@@ -55,4 +55,17 @@ router.post('/:merchantId/orders', async (req, res) => {
     });
 });
 
+router.get('/:merchantId/menu', async (req,res) => {
+    const merchantId = req.params.merchantId;
+    if(!merchantId || parseInt(merchantId) != merchantId) {
+        res.sendStatus(400);
+    }
+
+    const menu = await Actions.getMerchantMenu(merchantId);
+    console.log(menu)
+    res.json({
+      menu:menu
+    })
+});
+
 module.exports = router;
