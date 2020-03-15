@@ -79,13 +79,13 @@ async function responseWithNearbyLocations(psid, merchants) {
         subtitle: m.description || '',
         default_action: {
           type: 'web_url',
-          url: `https://0175863f.ngrok.io/customer?merchant=${m.id}`,
+          url: `https://0175863f.ngrok.io/customer/${m.id}/menu`,
           webview_height_ratio: 'tall',
         },
         buttons: [
           {
             type: 'web_url',
-            url: `https://0175863f.ngrok.io/customer?merchant=${m.id}`,
+            url: `https://0175863f.ngrok.io/customer/${m.id}/menu`,
             title: 'View Menu',
           }
         ],
