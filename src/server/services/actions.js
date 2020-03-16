@@ -11,6 +11,8 @@ const Receipts = require('../models/receipts');
 const GraphAPI = require('../services/graph-apis');
 const Dialog = require('../services/dialog');
 
+const {Status} = require('../../shared/orders');
+
 // Helpers
 const {getTimeUntilPickup} = require('../../shared/orders');
 
@@ -156,17 +158,25 @@ async function updateOrderPickupTime({psid, orderId, time}) {
   return order;
 }
 
-async function addOrderLineItem({orderId, menuItemId, comments, quantity}) {
+async function addOrderLineItem({orderUuid, menuItemId, comments = '', quantity}) {
   // @todo: adds order line items
-  if (!orderId || !menuItemId || !quantity) {
+  if (!orderUuid || !menuItemId || !quantity) {
     return null;
   }
 
+  const {order} = await Orders.getByUuid(orderUuid);
+
+  console.log('ORDER >> ', order);
+
+  if (!order || !order.id || order.status !== Status.STARTED) {
+    throw Error('No order found for UUID provided: ' + orderUuid);
+  }
+
   const results = await LineItems.create({
-    orderId,
+    orderId: order.id,
     menuItemId,
     quantity,
-    comments: comments || '',
+    comments: comments,
   });
 
   return results;
@@ -191,6 +201,32 @@ async function updateLineItemQuantity({lineItemId, quantity}) {
 
   console.log('results >> ', results);
   return results;
+}
+
+async function verifyOrderLineItemsCompleted(orderUuid) {
+  const {order} = await Orders.getByUuid(orderUuid);
+
+  if (!order.id || order.status !== Status.STARTED) {
+    throw new Error('Order not found or status is not started');
+  }
+
+  const lineItems = await Orders.lineItems(order.id);
+
+  console.log('HERE >> ', lineItems.length);
+  if (!lineItems || lineItems.length === 0) {
+    throw new Error('No line items added to this Order yet');
+  }
+
+  // Verify customer exists and has psid
+  const customer = await Customers.getWithId(order.customer_id);
+  if (!customer || !customer.psid) {
+    throw new Error('No customer founded for this Order');
+  }
+
+  return {
+    lineItems,
+    customer,
+  }
 }
 
 /**
@@ -241,9 +277,11 @@ async function getLineItems({orderId}) {
   const lineItems = await Orders.lineItems(orderId);
   return lineItems;
 }
+
 module.exports = {
   startOrderingChat,
   initiatOrderProcess,
+  getNearbyShopsFromZomato,
   getNearbyShops,
   getMerchantOrders,
   getMerchantMenu,
@@ -252,6 +290,7 @@ module.exports = {
   addOrderLineItem,
   updateLineItemQuantity,
   removeLineItem,
+  verifyOrderLineItemsCompleted,
   // sendCustomerTextMessageFromMerchant,
   getReceipt,
   getLineItems,

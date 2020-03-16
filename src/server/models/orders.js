@@ -6,13 +6,49 @@ const camelcaseKeys = require('camelcase-keys');
 const {Status} = require('../../shared/orders');
 
 const Table = () => db('orders');
+const MenuItemsTable = () => db('menu_items');
+const LineItemsTable = () => db('line_items');
 
 class Order {
-  constructor(post) { this.post = post }
+  constructor(order) { this.order = order }
 
-  static async getOne(id) {
-    // @todo: Merchant: get given orderId
+  static async getByUuid(uuid, extras = {}) {
+    
+    let order = await Table()
+      .select()
+      .where('uuid', uuid)
+      .first()
 
+    // Get menus if status=`started` and not yet confirmed
+    let menuItems;
+    if (order.id
+      && !order.confirmed_at
+      && order.status === Status.STARTED
+      && extras.withMenus) {
+      menuItems = await MenuItemsTable()
+        .select()
+        .where('merchant_id', order.merchant_id)
+        // console.log('menu results >> ', menuItems);
+    }
+
+    // Get line items of order
+    let lineItems;
+    if (order.id && extras.withLineItems) {
+      lineItems = await LineItemsTable()
+        .select()
+        .where('order_id', order.id)
+
+      console.log('line items >> ', lineItems);
+    }
+
+    // console.log('order results >> ', order);
+    return {
+      order,
+      menuItems,
+      cart: {
+        lineItems,
+      },
+    };
   }
 
   static async list(merchantId, filter) {
@@ -52,7 +88,6 @@ class Order {
       query = query.andWhere('created_at', '<=', filter.endDate);
     }
 
-    // @todo: should never include the status=`started` orders
     query = query.andWhereNot("status", 'started')
     if (filter.status) {
       query = query.andWhere("status", filter.status);

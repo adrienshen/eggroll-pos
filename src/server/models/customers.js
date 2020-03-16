@@ -22,6 +22,13 @@ class Customers {
       .first();
   }
 
+  static async getWithId(id) {
+    return await Table()
+      .select()
+      .where('id', id)
+      .first();
+  }
+
   static async orders() {
     // @todo: implement get customer's orders
     

@@ -12,7 +12,7 @@ const ResponseTemplates = {
   Introduction: name => `Hey there ${name}, let\'s get you started with ordering from our participating Merchants. Would you mind sharing your location so we can find nearby shops for you?`,
   ShowListOfMerchants: `Here's a list of available Merchants near you`,
   WhenToPickupQuickReply: {
-    quick_replies: [
+    quickReplies: [
       {
         content_type: 'text',
         title: 'In 15 minutes',
@@ -73,20 +73,24 @@ async function responseWithNearbyLocations(psid, merchants) {
   try {
     const recipient = {'id': psid};
     const elements = merchants.map(m => {
+      // @todo: use actual orderUuid from database
+      const uuid = '0fc6535c-0700-4926-8504-76c8b1c24fb4';
+
       return {
         title: `#${m.id} - ${m.business_name}`,
         image_url: 'https://placekitten.com/g/300/200',
         subtitle: m.description || '',
         default_action: {
           type: 'web_url',
-          url: `https://0175863f.ngrok.io/customer/${m.id}/menu`,
-          webview_height_ratio: 'tall',
+          url: `https://0175863f.ngrok.io/orders/${uuid}/menus`,
+          webview_height_ratio: 'FULL',
         },
         buttons: [
           {
             type: 'web_url',
-            url: `https://0175863f.ngrok.io/customer/${m.id}/menu`,
+            url: `https://0175863f.ngrok.io/orders/${uuid}/menus`,
             title: 'View Menu',
+            webview_height_ratio: 'FULL',
           }
         ],
       }
@@ -108,11 +112,20 @@ function startMenuSelection(psid) {
   // We need a way to instruct Messenger to open webview
 }
 
-function askAboutPickupTimes(psid) {
-  // @todo After Customer makes their order, we need to ask for pickup time
-  // In the database, it structure in 15 minute increments Eg. 15, 30, 45, 60
-  // So perhaps a Quick Reply here would work
+async function askAboutPickupTimes(customer, lineItems) {
+  let totalItemsAdded = 0;
+  let totalPriceCents = 0;
+  lineItems.forEach(line => {
+    totalItemsAdded += line.quantity;
+    totalPriceCents += parseInt(line.price_cents);
+  });
 
+  // console.log(totalItemsAdded, totalPriceCents);
+
+  const recipient = {'id': customer.psid};
+  const {quickReplies, text} = ResponseTemplates.WhenToPickupQuickReply;
+  await Client.sendText(recipient, `Great! We've added ${totalItemsAdded} items to your order cart subtotaling about ${(totalPriceCents/100).toFixed(2)}`);
+  setTimeout(Client.sendQuickReplies(recipient, quickReplies, text), 1000);
 }
 
 function askForOrderConfirmation(psid) {
@@ -134,5 +147,6 @@ function genericResponseText(psid, message) {
 module.exports = {
   introduction,
   genericResponseText,
-  responseWithNearbyLocations
+  responseWithNearbyLocations,
+  askAboutPickupTimes,
 }

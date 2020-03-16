@@ -5,6 +5,9 @@ const MERCHANT_ID = 3
 // Entrypoint for nodejs api
 
 const ORDERS_URL = '/api/merchants/$id/orders';
+const ORDER_MENUS_URL = '/api/orders/$uuid';
+const LINE_ITEMS_URL = '/api/orders/lineitems';
+const ORDER_ADD_COMPLETE_URL = '/api/orders/complete';
 
 const defaultGetOptions = {
   method: 'GET',
@@ -75,5 +78,34 @@ export const updateOrderStatus = async (params, merchantId) => {
     ...params,
   }));
   console.log('POST update order status ', response);
+  return response;
+}
+
+
+// Customer ordering and menus
+
+export const getCustomerOrderMenu = async (orderUuid) => {
+  const response = await fetchResource(ORDER_MENUS_URL.replace('$uuid', orderUuid));
+  console.log('response >> ', response);
+  return response;
+}
+
+export const createLineItem = async (params) => {
+  // console.log('params >> ', params);
+  const response = await fetchResource(LINE_ITEMS_URL, createPostBodyRequest({
+    ...params,
+  }));
+  return response;
+}
+
+export const removeLineItem = async (lineItemId) => {
+  // @todo: implement remove line item API
+
+}
+
+export const completeAddingLineItems = async (orderUuid) => {
+  const response = await fetchResource(ORDER_ADD_COMPLETE_URL, createPostBodyRequest({
+    orderUuid,
+  }));
   return response;
 }

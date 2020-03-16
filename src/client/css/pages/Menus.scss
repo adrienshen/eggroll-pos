@@ -1,4 +1,59 @@
 
+.Menu {
+  &__header {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__branding {
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: .25rem .5rem;
+    background: #6f42c1;
+    color: #fff;
+    font-family: arial, sans-serif;
+    position: fixed;
+    top: 0;
+    left: 0;
+    opacity: .90;
+    z-index: 10;
+  }
+
+  &__cart-icon {
+    color: #fff;
+
+    span {
+      color: #4caf50;
+      font-size: 12px;
+    }
+  }
+
+  &__merchant-meta {
+    margin-top: 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    h2, span, p {
+      margin-left: 2rem;
+    }
+  }
+}
+
+.CartItems__list {
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  li {
+    border-bottom: 1px solid #eee;
+  }
+}
+
 .QuantitySelector {
   display: inline-flex;
   flex-flow: row;
@@ -19,4 +74,18 @@
     font-size: 15px;
     outline: none;
   }
+}
+
+.MenuPageActions {
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  padding: 1rem;
+  background: #fff;
+  z-index: 10;
 }
