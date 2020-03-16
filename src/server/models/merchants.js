@@ -20,6 +20,14 @@ class Merchants {
     return res;
   }
 
+  static async getByHash(mhash) {
+    const res = await T()
+      .select()
+      .where('mhash', mhash)
+      .first();
+    return res;
+  }
+
   static async getByZomatoIds(zomatoIds) {
     const res = await T()
       .select()

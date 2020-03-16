@@ -9,7 +9,7 @@ const CONFIG = {
 const standardResponses = require('../services/response')
 
 const ResponseTemplates = {
-  Introduction: name => `Hey there ${name}, let\'s get you started with ordering from our participating Merchants. Would you mind sharing your location so we can find nearby shops for you?`,
+  Introduction: name => `Hey there ${name || ''}, let\'s get you started with ordering. Please type the #mhash (Merchant Hash Code Eg. #1122)?`,
   ShowListOfMerchants: `Here's a list of available Merchants near you`,
   WhenToPickupQuickReply: {
     quickReplies: [
@@ -104,39 +104,29 @@ async function introduction(psid, customer) {
   console.log('results from introduction >> ', results);
 }
 
-async function askAboutFoodType(psid, customer) {
-
-}
-
-async function responseWithNearbyLocations(psid, merchants) {
-  // @todo Return nearby locations to messenger client
-  // Should this be text message list? Quick replies? Webview?
-
+async function respondWithMerchantMenu(psid, merchant, uuid) {
+  const recipient = {'id': psid};
   try {
-    const recipient = {'id': psid};
-    const elements = merchants.map(m => {
+    const elements = [{
       // @todo: use actual orderUuid from database
-      const uuid = '0fc6535c-0700-4926-8504-76c8b1c24fb4';
-
-      return {
-        title: `#${m.id} - ${m.business_name}`,
-        image_url: 'https://placekitten.com/g/300/200',
-        subtitle: m.description || '',
-        default_action: {
+      // const uuid = '0fc6535c-0700-4926-8504-76c8b1c24fb4';
+      title: `#${merchant.id} - ${merchant.business_name}`,
+      image_url: 'https://i.imgur.com/d1QQU8T.jpg',
+      subtitle: merchant.description || '',
+      default_action: {
+        type: 'web_url',
+        url: `https://0175863f.ngrok.io/orders/${uuid}/menus`,
+        webview_height_ratio: 'FULL',
+      },
+      buttons: [
+        {
           type: 'web_url',
           url: `https://0175863f.ngrok.io/orders/${uuid}/menus`,
+          title: 'View Menu',
           webview_height_ratio: 'FULL',
-        },
-        buttons: [
-          {
-            type: 'web_url',
-            url: `https://0175863f.ngrok.io/orders/${uuid}/menus`,
-            title: 'View Menu',
-            webview_height_ratio: 'FULL',
-          }
-        ],
-      }
-    });
+        }
+      ],
+    }];
     const template = {
       template_type: 'generic',
       elements,
@@ -145,13 +135,8 @@ async function responseWithNearbyLocations(psid, merchants) {
     // console.log('results from responseWithNearbyLocations >> ', results);
     return await Client.sendTemplate(recipient, template);
   } catch(err) {
-    Client.sendText(recipient, `Hmm... we didn't understand that. What's your postal code again?`);
+    Client.sendText(recipient, `We're having some error finding this merchant and menu? Care to try another #mhash?`);
   }
-}
-
-function startMenuSelection(psid) {
-  // @todo After selecting Merchant location, customers will select food items from Webview
-  // We need a way to instruct Messenger to open webview
 }
 
 async function askAboutPickupTimes(customer, lineItems) {
@@ -213,13 +198,19 @@ async function genericResponseText(psid, message) {
   // @todo regular text messages from our backend to Messenger
 }
 
+async function fallbackResponse(psid) {
+  const recipient = {'id': psid};
+  await Client.sendText(recipient, `Hmm... not sure what you meant by that.`);
+}
+
 module.exports = {
   introduction,
   genericResponseText,
-  responseWithNearbyLocations,
+  respondWithMerchantMenu,
   askAboutPickupTimes,
   askOrVerifyMobile,
   askForOrderConfirmation,
   askForPaymentMethod,
   unableToUpdatePaymentMethod,
+  fallbackResponse,
 }

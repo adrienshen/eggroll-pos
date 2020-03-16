@@ -16,7 +16,7 @@ const {Status} = require('../../shared/orders');
 // Helpers
 const {getTimeUntilPickup} = require('../../shared/orders');
 
-async function startOrderingChat({psid}) {
+async function startOrderingChat(psid) {
   const profile = await GraphAPI.getUserProfile(psid);
   let name = '';
   if (profile && profile.first_name) {
@@ -32,23 +32,28 @@ async function startOrderingChat({psid}) {
     return Dialog.introduction(psid, profile);
   }
 
-  Dialog.introduction(psid, customer);
+  await Dialog.introduction(psid, customer);
 }
 
-async function initiatOrderProcess({psid, merchantId}) {
-  if (!psid || !merchantId) return;
-  // Creates new order
+async function initOrderProcess(psid, mhash) {
+  if (!psid) {
+    return;
+  }
+  // Get customer if exists, otherwise create
   let customer = await Customers.getWithPSID(psid);
   // console.log('customer >> ', customer);
 
-  // @todo: check if merchant exists in database and can accept orders
-  const merchant = await Merchants.get(merchantId);
+  const merchant = await Merchants.getByHash(mhash);
   if (!merchant || !merchant.id) {
     throw Error(`Merchant with id ${m.id} not founded!`);
   }
 
-  const orderId = await Orders.create({merchantId, customerId: customer.id});
-  return orderId;
+  console.log('merchant >> ', merchant);
+
+  const uuid = await Orders.create({merchantId: merchant.id, customerId: customer.id});
+  console.log('order uuid >> ', uuid);
+
+  Dialog.respondWithMerchantMenu(psid, merchant, uuid);
 }
 
 async function getNearbyShops(psid, zipCode) {
@@ -305,7 +310,7 @@ async function getLineItems({orderId}) {
 
 module.exports = {
   startOrderingChat,
-  initiatOrderProcess,
+  initOrderProcess,
   getNearbyShopsFromZomato,
   getNearbyShops,
   getMerchantOrders,

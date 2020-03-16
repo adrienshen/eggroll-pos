@@ -104,7 +104,7 @@ class Order {
       customer_id: customerId,
       status: Status.STARTED,
       uuid: uuid.v4(),
-    }).returning('id');
+    }).returning('uuid');
     // console.log('Order.create res >> ', res);
     return res[0];
   }

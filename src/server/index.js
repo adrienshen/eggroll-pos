@@ -77,8 +77,16 @@ app.post('/webhook', async (req, res) => {
 
 async function handleMessage(psid, message) {
   if (message.text) {
-    if (isZipCode(message.text)) {
-      return Actions.getNearbyShops(psid, message.text);
+    if (isFirstContact(message)) {
+      console.log('Confident is first contact... ', psid);
+      return Actions.startOrderingChat(psid);
+    }
+    // if (isZipCode(message.text)) {
+    //   return Actions.getNearbyShops(psid, message.text);
+    // }
+    if (isMerchantHashCode(message)) {
+      console.log('Is merchant hash code ', message.text);
+      return Actions.initOrderProcess(psid, message.text);
     }
     if (isPickupMinutes(message)) {
       console.log('Confident is a pickup time message >> ', message);
@@ -95,8 +103,25 @@ async function handleMessage(psid, message) {
         payment_method: message.payload,
       });
     }
-    await Dialog.introduction(psid, {name: 'Adrien Shen'});
+    await Dialog.fallbackResponse(psid);
   }
+}
+
+function isFirstContact(message) {
+  let valid = false;
+  const m = message.text.toLowerCase().trim();
+  if (m.indexOf('start') > -1) return true;
+  if (m.indexOf('order') > -1) return true;
+  if (m.indexOf('hey') > -1) return true;
+  if (m.indexOf('hungry') > -1) return true;
+  return false;
+}
+
+function isMerchantHashCode(message) {
+  if (message.text.indexOf('#') !== 0 && message.text.length !== 5) {
+    return false;
+  }
+  return true;
 }
 
 function isZipCode(possibleZip) {
@@ -173,32 +198,6 @@ app.get('/t', async (req, res) => {
   Dialog.askForOrderConfirmation('2855059271270323');
   res.send(`SENDING MESSAGE...`);
 });
-
-// app.get('/oc', async (req, res) => {
-//   const {psid, merchantId} = req.query;
-//   const orderId = await Actions.initiatOrderProcess({psid, merchantId});
-//   res.send(`Order created with ID: ${orderId}`);
-// });
-
-// app.get('/o', async (req, res) => {
-//   const params = {psid: '1005', orderId: 24, time: 30};
-//   const orders = await Actions.updateOrderPickupTime(params);
-//   res.json({orderUpdated: orders});
-// });
-
-// app.get('/l', async (req, res) => {
-//   const params = {psid: '1005', orderId: 24, menuItemId: 2, quantity: 5, comments: ''};
-//   const results = await Actions.addOrderLineItem(params);
-//   res.json({updated: results});
-// });
-
-// app.delete('/l', async (req, res) => {
-//   const params = {psid: '1005', orderId: 24, lineItemId: 3};
-//   const results = await Actions.removeLineItem(params);
-//   res.json({updated: results});
-// });
-
-// @end: test routes
 
 // curl -H "Content-Type: application/json" -X POST "localhost:3000/webhook" -d '{"object": "page", "entry": [{"messaging": [{"message": "TEST_MESSAGE"}]}]}'
 
