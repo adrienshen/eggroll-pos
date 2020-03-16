@@ -21,7 +21,7 @@ const ResponseTemplates = {
       messenger_extensions: true,
     }
   ),
-  Confirmation: () => standardResponses.genQuickReply('Would you like to confirm your order?',[ {"content_type":"text","payload":"OrderCancel","title":"Confirm"}, {"content_type":"text","payload":"OrderCancel","title":"Cancel"}]),
+  Confirmation: () => standardResponses.genQuickReply('Would you like to confirm your order?',[ {"content_type":"text","payload":"OrderConfirm","title":"Confirm"}, {"content_type":"text","payload":"OrderCancel","title":"Cancel"}]),
   SelectPickUpTime: () => standardResponses.genQuickReply('When do you want to pick it up?',
   [
     {"content_type":"text","payload":"Order15","title":"15 mins"},
@@ -68,7 +68,7 @@ function askAboutPickupTimes(psid) {
   // In the database, it structure in 15 minute increments Eg. 15, 30, 45, 60
   // So perhaps a Quick Reply here would work
   const recipient = {'id': psid};
-  Client.sendTemplate(recipient, ResponseTemplates.SelectPickUpTime(customer.name));
+  Client.sendTemplate(recipient, ResponseTemplates.SelectPickupTime(customer.name));
 
 }
 
