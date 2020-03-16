@@ -2,6 +2,7 @@ const _ = require('lodash');
 const db = require('./db');
 
 const Table = () => db('customers');
+const OrderTable = () => db('orders');
 
 class Customers {
   constructor(customer) { this.customer = customer }
@@ -35,6 +36,27 @@ class Customers {
       .where('psid', psid)
       .returning('*');
     return res[0];
+  }
+
+  static async updateLatestCustomerOrderWithPSID(psid, params) {
+    const customer = await this.getWithPSID(psid, params);
+    const currentOrder = await OrderTable()
+      .select()
+      .where('customer_id', customer.id)
+      .orderBy('created_at', 'desc')
+      .first()
+
+    if (currentOrder.payment_method) {
+      console.error(`Order already has payment method ${currentOrder.payment_method}; Will not modify`);
+      return null;
+    }
+
+    const updated = await OrderTable()
+      .update(params)
+      .where('id', currentOrder.id)
+      .returning('*')
+    console.info('UPDATED ', JSON.stringify(updated));
+    return updated[0];
   }
 
   static async orders() {

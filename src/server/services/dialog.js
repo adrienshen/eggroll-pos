@@ -59,6 +59,25 @@ const ResponseTemplates = {
       },
     ],
   },
+  AskForOrderConfirmation: {
+    text: `Confirm the order?`,
+    quickReplies: [
+      {
+        content_type: 'text',
+        title: 'Yes',
+        payload: 'yes',
+      },
+      {
+        content_type: 'text',
+        title: 'No',
+        payload: 'no',
+      },
+    ],
+  },
+  OrderHasBeenPlaced: (orderId, minutes) => `Your order #${orderId} has been placed. Should ready for pickup in ${minutes} minutes`,
+  OrderIsBeingPrepared: (orderId, merchantName) => `Your order #${orderId} is has been accepted by ${merchantName}!`,
+  OrderIsBeingPrepared: orderId => `Your order #${orderId} is being prepared!`,
+  OrderIsReadyForPickup: orderId => `Your order #${orderId} is now ready for pickup!`,
   ViewReceipt: (name, receiptId) => standardResponses.genButtonTemplate(
     `Hey there ${name}, here is your receipt!`,
     {
@@ -166,10 +185,21 @@ async function askForPaymentMethod(customer) {
   await Client.sendQuickReplies(recipient, quickReplies, text);
 }
 
-async function askForOrderConfirmation(psid) {
-  //@todo Ask the Customer if they want to confirm the order
+async function unableToUpdatePaymentMethod(psid) {
+  const recipient = {'id': psid};
+  await Client.sendText(recipient, `We couldn't update the payment method. Try again?`);
+  const {quickReplies, text} = ResponseTemplates.AskPaymentMethodQuickReply;
+  await Client.sendQuickReplies(recipient, quickReplies, text);
+}
 
+async function askForOrderConfirmation(psid, {subTotal, totalWithTax}) {
+  const recipient = {'id': psid};
 
+  await Client.sendText(recipient, `Your order subtotal is $${(subTotal/100).toFixed(2) || '$subTotal'}`);
+  await Client.sendText(recipient, `Your order total with tax is $${(totalWithTax/100).toFixed(2) || 'totalWithTax'}`);
+
+  const {quickReplies, text} = ResponseTemplates.AskForOrderConfirmation;
+  await Client.sendQuickReplies(recipient, quickReplies, text);
 }
 
 async function respondWithReceipt(psid, receiptId) {
@@ -191,4 +221,5 @@ module.exports = {
   askOrVerifyMobile,
   askForOrderConfirmation,
   askForPaymentMethod,
+  unableToUpdatePaymentMethod,
 }

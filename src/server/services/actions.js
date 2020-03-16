@@ -243,11 +243,15 @@ async function storePhoneNumber(psid, mobile) {
 }
 
 async function updatePaymentMethod(psid, params) {
+  const updatedOrder = await Customers.updateLatestCustomerOrderWithPSID(psid, params);
+  if (!updatedOrder) {
+    await Dialog.unableToUpdatePaymentMethod(psid);
+  }
 
-  // const customer = 
-  // @todo: implement update payment method; make it easier to update order using psid
+  const totals = await Orders.calculateTotals(updatedOrder.id);
+  // console.log('line totals >> ', totals);
 
-  await Dialog.askForOrderConfirmation(psid);
+  await Dialog.askForOrderConfirmation(psid, totals);
 }
 
 /**
@@ -313,6 +317,7 @@ module.exports = {
   removeLineItem,
   verifyOrderLineItemsCompleted,
   storePhoneNumber,
+  updatePaymentMethod,
   // sendCustomerTextMessageFromMerchant,
   getReceipt,
   getLineItems,

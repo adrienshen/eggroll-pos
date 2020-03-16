@@ -52,4 +52,13 @@ router.post('/complete', async (req, res) => {
   res.sendStatus(200);
 });
 
+router.put('/', async (req, res) => {
+  const PSID = '2855059271270323';
+  const payment_method = 'in_store';
+  Actions.updatePaymentMethod(PSID, {
+    payment_method
+  });
+  res.json([]);
+});
+
 module.exports = router;

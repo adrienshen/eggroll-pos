@@ -140,6 +140,20 @@ class Order {
       .where('orders.id', id);
   }
 
+  static async calculateTotals(id) {
+    const lines = await this.lineItems(id);
+    const TAX = .07;
+    let subTotal = 0;
+    lines.forEach(line => {
+      subTotal += (parseInt(line.price_cents) * line.quantity);
+    });
+
+    return {
+      subTotal,
+      totalWithTax: subTotal + (subTotal * TAX),
+    };
+  }
+
   static async calculateSubtotal({id,taxRate}) {
     const lineItems = await(this.lineItems(id));
     const subtotalCents = lineItems.reduce((a,c) => a+ parseInt(c.price_cents), 0);

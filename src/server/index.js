@@ -92,7 +92,7 @@ async function handleMessage(psid, message) {
     if (isPaymentMethodReply(message)) {
       console.log('Confident is payment method reponse >> ', message);
       return Actions.updatePaymentMethod(psid, {
-        paymentMethod: message.payload,
+        payment_method: message.payload,
       });
     }
     await Dialog.introduction(psid, {name: 'Adrien Shen'});
@@ -168,35 +168,35 @@ app.get('/r/:receiptId', async (req, res) => {
 
 // @note: test routes, will be deleted once integrated with chatbot
 
-app.get('/c', async (req, res) => {
+app.get('/t', async (req, res) => {
   const params = {psid: '1005'};
-  const results = await Actions.startOrderingChat(params);
-  res.send(`Creating customer or returning existing customer`);
+  Dialog.askForOrderConfirmation('2855059271270323');
+  res.send(`SENDING MESSAGE...`);
 });
 
-app.get('/oc', async (req, res) => {
-  const {psid, merchantId} = req.query;
-  const orderId = await Actions.initiatOrderProcess({psid, merchantId});
-  res.send(`Order created with ID: ${orderId}`);
-});
+// app.get('/oc', async (req, res) => {
+//   const {psid, merchantId} = req.query;
+//   const orderId = await Actions.initiatOrderProcess({psid, merchantId});
+//   res.send(`Order created with ID: ${orderId}`);
+// });
 
-app.get('/o', async (req, res) => {
-  const params = {psid: '1005', orderId: 24, time: 30};
-  const orders = await Actions.updateOrderPickupTime(params);
-  res.json({orderUpdated: orders});
-});
+// app.get('/o', async (req, res) => {
+//   const params = {psid: '1005', orderId: 24, time: 30};
+//   const orders = await Actions.updateOrderPickupTime(params);
+//   res.json({orderUpdated: orders});
+// });
 
-app.get('/l', async (req, res) => {
-  const params = {psid: '1005', orderId: 24, menuItemId: 2, quantity: 5, comments: ''};
-  const results = await Actions.addOrderLineItem(params);
-  res.json({updated: results});
-});
+// app.get('/l', async (req, res) => {
+//   const params = {psid: '1005', orderId: 24, menuItemId: 2, quantity: 5, comments: ''};
+//   const results = await Actions.addOrderLineItem(params);
+//   res.json({updated: results});
+// });
 
-app.delete('/l', async (req, res) => {
-  const params = {psid: '1005', orderId: 24, lineItemId: 3};
-  const results = await Actions.removeLineItem(params);
-  res.json({updated: results});
-});
+// app.delete('/l', async (req, res) => {
+//   const params = {psid: '1005', orderId: 24, lineItemId: 3};
+//   const results = await Actions.removeLineItem(params);
+//   res.json({updated: results});
+// });
 
 // @end: test routes
 
