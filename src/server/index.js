@@ -15,8 +15,8 @@ const merchantsRouter = require('./routes/merchants');
 const ordersRouter = require('./routes/orders');
 
 const Actions = require('./services/actions');
-
 const Dialog = require('./services/dialog');
+const {PaymentMethods} = require('../shared/payments');
 
 const app = express();
 
@@ -45,11 +45,11 @@ app.post('/webhook', async (req, res) => {
     // iterates over each entry
     body.entry.forEach(async entry => {
 
-      console.log('ENTRY >> ', entry);
+      // console.log('ENTRY >> ', entry);
       
       // handles events
       let webhook_event = entry.messaging[0];
-      console.log(webhook_event);
+      // console.log(webhook_event);
 
       // get the sender PSID
       let sender_psid = webhook_event.sender.id;
@@ -57,6 +57,7 @@ app.post('/webhook', async (req, res) => {
 
       // NLP entities:
       console.log('NLP entities >> ', webhook_event.message.nlp.entities);
+      // console.log('NLP datetime values >> ', entities.datetime[0].values);
 
       if (webhook_event.message) {
         await handleMessage(sender_psid, webhook_event.message);
@@ -74,13 +75,27 @@ app.post('/webhook', async (req, res) => {
   }
 });
 
-async function handleMessage(sender_psid, received_message) {
-  if (received_message.text) {
-    if (isZipCode(received_message.text)) {
-      return Actions.getNearbyShops(sender_psid, received_message.text);
+async function handleMessage(psid, message) {
+  if (message.text) {
+    if (isZipCode(message.text)) {
+      return Actions.getNearbyShops(psid, message.text);
     }
-    console.log('Test the introduction...');
-    await Dialog.introduction(sender_psid, {name: 'Adrien Shen'});
+    if (isPickupMinutes(message)) {
+      console.log('Confident is a pickup time message >> ', message);
+      if (!message.quick_reply) return;
+      return Actions.updateOrderPickupTime({psid, time: message.quick_reply.payload});
+    }
+    if (isCustomerProvidedMobileNumber(message)) {
+      console.log('Confident is mobile number >> ', message);
+      return Actions.storePhoneNumber(psid, message.quick_reply.payload);
+    }
+    if (isPaymentMethodReply(message)) {
+      console.log('Confident is payment method reponse >> ', message);
+      return Actions.updatePaymentMethod(psid, {
+        paymentMethod: message.payload,
+      });
+    }
+    await Dialog.introduction(psid, {name: 'Adrien Shen'});
   }
 }
 
@@ -88,6 +103,41 @@ function isZipCode(possibleZip) {
   const min = 10000;
   const max = 999999;
   return Number(possibleZip) >= min && Number(possibleZip) <= max;
+}
+
+function isPickupMinutes(message) {
+  // console.log('MESSAGE >> ', message);
+  const {text, quick_reply, nlp} = message;
+
+  if (!quick_reply || !Number(quick_reply.payload)) {
+    return false;
+  }
+
+  const minutesRegex = /(i|I)n.+(15|30|45|60).+minutes/gi;
+  if (!minutesRegex.test(text)) {
+    return false;
+  }
+
+  console.log('NLP entities >> ', nlp.entities.datetime);
+  if (!nlp && !nlp.entities && !nlp.entities.datetime && !nlp.entities.datetime.confidence > .9) {
+    return false;
+  }
+
+  return true;
+}
+
+function isCustomerProvidedMobileNumber({quick_reply, text, nlp}) {
+  // console.log('NLP >> ', nlp);
+  if (!text || !quick_reply || !quick_reply.payload) return false;
+  if (!nlp.entities || !nlp.entities.phone_number) return false;
+  return true;
+}
+
+function isPaymentMethodReply(quick_reply, text, nlp) {
+  if (quick_reply && quick_reply.payload === PaymentMethods.IN_STORE || quick_reply.payload === PaymentMethods.FACEBOOK_PAY) {
+    return true;
+  }
+  return false;
 }
 
 /* Adds support for GET requests to our webhook */

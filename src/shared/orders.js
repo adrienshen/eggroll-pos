@@ -1,4 +1,4 @@
-const { format, subDays, addMinutes, parseJSON, formatDistanceStrict, isFuture } = require('date-fns');
+const { addMinutes, parseJSON } = require('date-fns');
 
 const Status = {
   // chat started by Customer

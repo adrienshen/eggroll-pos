@@ -27,8 +27,6 @@ router.get('/:uuid', async (req, res) => {
 });
 
 router.post('/lineitems', async (req, res) => {
-  console.log('HERE >> ', req.body);
-
   const params = _.pick(req.body, ['orderUuid', 'menuItemId', 'quantity', 'comments']);
   if (!params.orderUuid || !params.menuItemId || Number(params.quantity) < 1 || Number(params.quantity) > 10) {
     console.error('Missing one of required params: orderUuid, lineItemId, quantity');

@@ -36,6 +36,29 @@ const ResponseTemplates = {
     ],
     text: 'When would you like to pickup your order?',
   },
+  AskMobilePhoneQuickReply: {
+    text: 'Just incase the merchant store needs to contact you about your order, would you mind providing your mobile number?',
+    quickReplies: [
+      {
+        content_type: 'user_phone_number',
+      }
+    ],
+  },
+  AskPaymentMethodQuickReply: {
+    text: 'How would you like to pay?',
+    quickReplies: [
+      {
+        content_type: 'text',
+        title: 'Facebook Pay',
+        payload: 'facebook_pay',
+      },
+      {
+        content_type: 'text',
+        title: 'In Store',
+        payload: 'in_store',
+      },
+    ],
+  },
   ViewReceipt: (name, receiptId) => standardResponses.genButtonTemplate(
     `Hey there ${name}, here is your receipt!`,
     {
@@ -125,22 +148,38 @@ async function askAboutPickupTimes(customer, lineItems) {
   const recipient = {'id': customer.psid};
   const {quickReplies, text} = ResponseTemplates.WhenToPickupQuickReply;
   await Client.sendText(recipient, `Great! We've added ${totalItemsAdded} items to your order cart subtotaling about ${(totalPriceCents/100).toFixed(2)}`);
-  setTimeout(Client.sendQuickReplies(recipient, quickReplies, text), 1000);
+  setTimeout(async () => await Client.sendQuickReplies(recipient, quickReplies, text), 1000);
 }
 
-function askForOrderConfirmation(psid) {
+async function askOrVerifyMobile(customer, order) {
+  const recipient = {'id': customer.psid};
+  const {quickReplies, text} = ResponseTemplates.AskMobilePhoneQuickReply;
+  await Client.sendText(recipient, `Sounds good! We got you down to pick up in ${order.pickup_in} minutes`);
+  await Client.sendQuickReplies(recipient, quickReplies, text);
+}
+
+async function askForPaymentMethod(customer) {
+  const recipient = {'id': customer.psid};
+  await Client.sendText(recipient, `Thanks ${customer.name}!`);
+
+  const {quickReplies, text} = ResponseTemplates.AskPaymentMethodQuickReply;
+  await Client.sendQuickReplies(recipient, quickReplies, text);
+}
+
+async function askForOrderConfirmation(psid) {
   //@todo Ask the Customer if they want to confirm the order
 
+
 }
 
-function respondWithReceipt(psid, receiptId) {
+async function respondWithReceipt(psid, receiptId) {
   // @todo Sends the receipt to customer, opened in a Webview
   // we already have the Receipt implmented in PR: https://github.com/adrienshen/facebook-bizchat-hackathon/pull/13/files
   const recipient = {'id': psid};
   Client.sendTemplate(recipient, ResponseTemplates.ViewReceipt(customer.name,receiptId));
 }
 
-function genericResponseText(psid, message) {
+async function genericResponseText(psid, message) {
   // @todo regular text messages from our backend to Messenger
 }
 
@@ -149,4 +188,7 @@ module.exports = {
   genericResponseText,
   responseWithNearbyLocations,
   askAboutPickupTimes,
+  askOrVerifyMobile,
+  askForOrderConfirmation,
+  askForPaymentMethod,
 }

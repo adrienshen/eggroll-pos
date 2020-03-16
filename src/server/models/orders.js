@@ -120,7 +120,7 @@ class Order {
     const res = await Table()
       .update({...params})
       .where('id', id)
-      .returning('id');
+      .returning('*');
     // console.log('update res: ', res);
     return res[0];
   }
@@ -184,6 +184,14 @@ class Order {
       }
     });
     return grouped;
+  }
+
+  static async getWithCustomerId(customerId) {
+    return await Table()
+      .select()
+      .where('customer_id', customerId)
+      .orderBy('created_at', 'desc')
+      .first()
   }
 }
 

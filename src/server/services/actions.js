@@ -39,7 +39,7 @@ async function initiatOrderProcess({psid, merchantId}) {
   if (!psid || !merchantId) return;
   // Creates new order
   let customer = await Customers.getWithPSID(psid);
-  console.log('customer >> ', customer);
+  // console.log('customer >> ', customer);
 
   // @todo: check if merchant exists in database and can accept orders
   const merchant = await Merchants.get(merchantId);
@@ -132,10 +132,10 @@ async function getCustomersOrders({psid}) {
   // @todo: given psid, get all of customers previous and current orders
 }
 
-async function updateOrderPickupTime({psid, orderId, time}) {
+async function updateOrderPickupTime({psid, time}) {
   // time: Integer = 15, 30, 45, 60
 
-  if (!psid || !orderId || !time) {
+  if (!psid || !time) {
     throw Error('Params missing');
   }
 
@@ -150,12 +150,17 @@ async function updateOrderPickupTime({psid, orderId, time}) {
     throw Error(`No customer with ${psid} found`);
   }
 
+  // Get the current/latest orderId from customer psid
+  const order = await Orders.getWithCustomerId(customer.id);
+  console.log('most recent orders >> ', order);
+
   const params = {
     pickup_in: time,
   };
-  const order = await Orders.update(orderId, params);
-  console.log('updated order: ', order);
-  return order;
+  const updated = await Orders.update(order.id, params);
+  console.log('updated order: ', updated);
+
+  Dialog.askOrVerifyMobile(customer, updated);
 }
 
 async function addOrderLineItem({orderUuid, menuItemId, comments = '', quantity}) {
@@ -229,6 +234,22 @@ async function verifyOrderLineItemsCompleted(orderUuid) {
   }
 }
 
+async function storePhoneNumber(psid, mobile) {
+  const params = {
+    mobile_phone: mobile,
+  };
+  const customer = await Customers.update(psid, params);
+  await Dialog.askForPaymentMethod(customer);
+}
+
+async function updatePaymentMethod(psid, params) {
+
+  // const customer = 
+  // @todo: implement update payment method; make it easier to update order using psid
+
+  await Dialog.askForOrderConfirmation(psid);
+}
+
 /**
  * Used to send direct messages from Merchant to Customer
  * @param {*} params
@@ -291,6 +312,7 @@ module.exports = {
   updateLineItemQuantity,
   removeLineItem,
   verifyOrderLineItemsCompleted,
+  storePhoneNumber,
   // sendCustomerTextMessageFromMerchant,
   getReceipt,
   getLineItems,

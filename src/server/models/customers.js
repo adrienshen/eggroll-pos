@@ -29,6 +29,14 @@ class Customers {
       .first();
   }
 
+  static async update(psid, params) {
+    const res = await Table()
+      .update(params)
+      .where('psid', psid)
+      .returning('*');
+    return res[0];
+  }
+
   static async orders() {
     // @todo: implement get customer's orders
     
