@@ -23,11 +23,18 @@ const ResponseTemplates = {
   ),
   Confirmation: () => standardResponses.genQuickReply('Would you like to confirm your order?',[ {"content_type":"text","payload":"OrderCancel","title":"Confirm"}, {"content_type":"text","payload":"OrderCancel","title":"Cancel"}]),
   SelectPickUpTime: () => standardResponses.genQuickReply('When do you want to pick it up?',
-  [ 
+  [
     {"content_type":"text","payload":"Order15","title":"15 mins"},
     {"content_type":"text","payload":"Order30","title":"30 mins"},
     {"content_type":"text","payload":"Order45","title":"45 mins"},
     {"content_type":"text","payload":"Order60","title":"60 mins"},]),
+  
+    PaymentMethod: () => standardResponses.genQuickReply(`How would you be paying by?`,
+    [
+      {"content_type":"text","payload":"FBpay","title":"FBpay"},
+      {"content_type":"text","payload":"PayAtShop","title":"Pay at the shop"}
+    ]),
+
   GenericMessage: message => `${message}`
 }
 
@@ -69,6 +76,13 @@ function askForOrderConfirmation(psid) {
   //@todo Ask the Customer if they want to confirm the order
   const recipient = {'id': psid};
   Client.sendTemplate(recipient, ResponseTemplates.Confirmation());
+
+}
+
+function askForPaymentMethod(psid) {
+  //@todo Ask the Customer if they want to confirm the order
+  const recipient = {'id': psid};
+  Client.sendTemplate(recipient, ResponseTemplates.PaymentMethod());
 
 }
 
