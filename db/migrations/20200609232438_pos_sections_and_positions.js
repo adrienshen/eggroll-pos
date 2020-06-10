@@ -3,8 +3,8 @@
  * -------------------------------
  */
 
-exports.up = function (knex) {
-  knex.raw('create extension if not exists "uuid-ossp"');
+exports.up = async function (knex) {
+  await knex.raw('create extension if not exists "uuid-ossp"');
   return knex.schema
     .createTable("restaurants", (t) => {
       t.increments("id");
