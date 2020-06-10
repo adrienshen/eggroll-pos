@@ -6,7 +6,7 @@ module.exports = {
     client: 'postgresql',
     connection: {
       host: '127.0.0.1',
-      database: 'fb_bizchat_demo',
+      database: 'eggrollpos',
       user: 'postgres',
       password: '',
     },
