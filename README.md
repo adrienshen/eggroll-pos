@@ -1,7 +1,6 @@
-# facebook-bizchat-hackathon
-For Facebook Messaging Hackathon: https://fbmessaging1.devpost.com
+# eggroll-pos
 
-Deadline to submit is: Deadline: 5:00pm EDT Mar 16, 2020
+Restaurant margins are slim enough already. And now SaaS companies and tech platforms want a piece of that as well. The opensource project, eggroll-pos will be a completely free restaurant pos and online ordering solution that you can self host and not have to pay a dime to platforms. Restaurants will have control of their customer data and market however they see fit whether that is email or sms marketing.
 
 ## Getting started
 
