@@ -1,0 +1,49 @@
+
+POS architecture
+
+the pos is just a client (terminal) into the core ordering system used by staff to create and manage orders
+
+in our design pos is just a client, similar to online order app, it communicates with orders system
+
+                      [POS] -- -- [Ordering (headless)] -- -- [Web / Mobile Client]
+
+                      [Ordering]
+                        - Payments
+                        - Orders
+                        - Receipts
+                        - Send emails
+                        - Queuing
+                        - DB access
+                        - Menus
+                        - Line items
+
+                      [Web / Mobile]
+                        - handles customers ordering
+
+                      [POS]
+                        - staff access
+                        - staff checkins
+                        - station configs
+                        - menu item placements
+                        - add to menus
+                        - create orders
+                        - void orders
+                        - receive cash payments
+                        - receive credit card payments
+                        - print receipts (thermal)
+
+                      [Ext. Apps]
+                        - Call Center (AI)
+                        - Delivery Tools
+                        - Accounting
+                        - Reservations
+                        - Kiosk
+                        - Websites
+                        - Suppliers
+                        - Loyalty Program
+                        - Staffing
+                        - Social Media
+
+
+POS Module
+
