@@ -9,7 +9,7 @@
     "build": "webpack",
     "build:image": "webpack && cp -r src/client/assets/images/* dist/",
     "start2": "webpack --watch --mode=development & NODE_ENV=development DEBUG=exponent* node ./bin/www; kill $!",
-    "test": "mocha"
+    "test": "mocha specs/**/*"
   },
   "engines": {
     "node": "^10.13.0"
