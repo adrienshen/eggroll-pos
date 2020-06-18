@@ -8,7 +8,7 @@
     "dev": "webpack --watch --mode=development & NODE_ENV=development DEBUG=sqc_app* nodemon ./bin/www; kill $!",
     "build": "webpack",
     "build:image": "webpack && cp -r src/client/assets/images/* dist/",
-    "start2": "webpack --watch --mode=development & NODE_ENV=development DEBUG=exponent* node ./bin/www; kill $!"
+    "start2": "webpack --watch --mode=development & NODE_ENV=development DEBUG=exponent* node ./bin/www; kill $!",
     "test": "mocha"
   },
   "engines": {
