@@ -1,17 +1,24 @@
 
-POS architecture
+Ordering - POS architecture
 
 the pos is just a client (terminal) into the core ordering system used by staff to create and manage orders
 
 in our design pos is just a client, similar to online order app, it communicates with orders system
 
-                      [POS] -- -- [Ordering (headless)] -- -- [Web / Mobile Client]
+                                    [Analytics Backend] -- (DB)
+                                            |
+                                            |                 
+                      [POS] <-- --> [Ordering (headless)] <-- (Gateway) --> [Web / Mobile Client]
+                        |                   |
+                        |                   | (Expose GraphQL / REST APIs)
+                  (Merchant Apps)           |
+                                      [Extensions Apps]
 
-                      [Ordering]
+                      [Core Ordering]
                         - Payments
                         - Orders
                         - Receipts
-                        - Send emails
+                        - Send notifications
                         - Queuing
                         - DB access
                         - Menus
@@ -19,8 +26,10 @@ in our design pos is just a client, similar to online order app, it communicates
 
                       [Web / Mobile]
                         - handles customers ordering
+                        - online menus
+                        - websites and apps
 
-                      [POS]
+                      [POS Application abilities]
                         - staff access
                         - staff checkins
                         - station configs
@@ -32,7 +41,7 @@ in our design pos is just a client, similar to online order app, it communicates
                         - receive credit card payments
                         - print receipts (thermal)
 
-                      [Ext. Apps]
+                      [Potential Ext. Apps]
                         - Call Center (AI)
                         - Delivery Tools
                         - Accounting
