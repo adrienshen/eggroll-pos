@@ -13,6 +13,7 @@ const usersRouter = require('./routes/users');
 const leadsRouter = require('./routes/leads');
 const merchantsRouter = require('./routes/merchants');
 const ordersRouter = require('./routes/orders');
+const restaurantsRouter = require('./routes/pos/restaurants');
 
 const Actions = require('./services/actions');
 const Dialog = require('./services/dialog');
@@ -35,6 +36,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/contact', leadsRouter);
 app.use('/api/merchants', merchantsRouter);
 app.use('/api/orders', ordersRouter);
+app.use('/api/restaurants', restaurantsRouter);
 
 /* entrypoint for messenger webhook */
 app.post('/webhook', async (req, res) => {

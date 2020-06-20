@@ -41,6 +41,13 @@ in our design pos is just a client, similar to online order app, it communicates
                         - receive credit card payments
                         - print receipts (thermal)
 
+                        Hardware considerations
+                          - Android based, tablets, mobiles
+                            - Potential to customized the core OS
+                            - Apple platform and review process is more restrictive
+                            - More options for tablet devices
+                            - Cheaper cost of devices
+
                       [Potential Ext. Apps]
                         - Call Center (AI)
                         - Delivery Tools

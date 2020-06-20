@@ -52,3 +52,5 @@ class Restaurants {
   }
 
 }
+
+module.exports = Restaurants;
