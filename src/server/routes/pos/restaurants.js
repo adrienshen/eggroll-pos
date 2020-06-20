@@ -4,61 +4,62 @@ const _ = require('lodash');
 
 const Restaurants = require('../../models/pos/restaurants');
 
-function get(req, res) {
+async function get(req, res) {
   // Get with uuid
   const {uuid} = req.params;
   if (!uuid) {
     console.error('uuid not provided');
-    res.sendStatus(400);
+    res.send('uuid required', 400);
   }
 
   const result = null;
   if (uuid) {
     result = Restaurants.getWithUUID(uuid);
   } else {
-    console.error('id or uuid not provided');
-    res.sendStatus(400);
+    console.error('uuid not provided');
+    res.status(400).send('uuid required');
   }
 
-  if (!restaurants) {
-    res.sendStatus(500);
-    return;
-  }
   res.json(result);
 }
 
 // @todo: Create middleware for param validation before the route handler
-function list(req, res) {
+async function list(req, res) {
   // List according to filter params
-  const filters = _.pick(req.query, ['name', 'address', 'delivery', 'takeout', 'is_open', 'merchant_id']);
+  const filters = _.pick(req.query, ['name', 'delivery', 'takeout', 'is_open', 'merchant_id']);
 
-  if (!Object.keys(filters).length || !filters.merchant_id || !filters.name) {
-    res.sendStatus('500').send('Invalid parameters: send one or more of: name, address, delivery, takeout, is_open, merchant_id');
+  console.log('filters >> ', filters);
+  if (!Object.keys(filters).length) {
+    res.status(400)
+      .send('Invalid parameters: send one or more of: name, delivery, takeout, is_open, merchant_id');
+    return;
+  }
+  if (!filters.merchant_id && !filters.name) {
+    res.status(400)
+      .send('Requires either merchant_id or name as filter parameters');
   }
 
-  const results = Restaurants.list(query);
+  const results = await Restaurants.list(filters);
   res.json(results);
 }
 
-function create(req, res) {
+async function create(req, res) {
   const params = _.pick(req.body, ['name', 'address', 'delivery', 'takeout', 'dine_in', 'is_open', 'extra_fields', 'merchant_id']);
   // @todo: must get `merchant_id` from authenticated user instead
 
   if (!params.name || !params.address || !params.merchant_id) {
-    res.sendStatus(500)
-      .send('Missing parameters: send name, address, and merchant_id');
+    res.send('Missing parameters: send name, address, and merchant_id', 400);
   }
 
   const result = await Restaurants.update(params);
   res.json(result);
 }
 
-function update(req, res) {
+async function update(req, res) {
   const params = _.pick(req.body, ['name', 'address', 'delivery', 'takeout', 'dine_in', 'is_open'])
 
   if (!Object.keys(params).length || !req.body.uuid) {
-    res.sendStatus('500')
-      .send('Invalid parameters: send one or more of: name, address, delivery, takeout, is_open, extra_fields, and uuid of Restaurant');
+    res.send('Invalid parameters: send one or more of: name, address, delivery, takeout, is_open, extra_fields, and uuid of Restaurant', 400);
   }
 
   const results = await Restaurants.update(req.body.uuid, params);

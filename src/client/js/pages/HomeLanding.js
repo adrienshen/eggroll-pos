@@ -6,10 +6,10 @@ export default function HomeLanding(props) {
   return(
     <div>
       <Container className="hero">
-        <h1>Reach your customers through Chat, Get more sales!</h1>
-        <div>
+        <p>core api endpoints for eggrollpos / @todo: replace with documentation</p>
+        {/* <div>
           <ContactForm />
-        </div>
+        </div> */}
       </Container>
     </div>
   )
