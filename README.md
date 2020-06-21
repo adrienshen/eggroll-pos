@@ -1,6 +1,6 @@
 # eggroll-pos
 
-Restaurant margins are slim enough already, typically between 5% and 10%. And now SaaS companies and tech platforms want a piece of that as well. The opensource project, eggroll-pos will be a completely free restaurant pos and online ordering solution that you can self host and not have to pay a dime to platforms. Restaurants will have control of their customer data and market however they see fit whether that is email or sms marketing.
+This open-source project will be an attempt to build modern, free restaurant pos and online ordering solution that you can self host and not have to pay a dime to platforms. Restaurants will have control of their customer data and market however they see fit whether that is email or sms marketing.
 
 ## Getting started
 
